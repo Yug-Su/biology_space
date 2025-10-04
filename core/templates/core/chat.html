@@ -1,0 +1,125 @@
+{% extends 'core/base.html' %}
+
+{% block title %}AI Chat - SpaceBio AI{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg" x-data="{
+            messages: {{ session.messages|safe|default:'[]' }},
+            newMessage: '',
+            loading: false,
+            sessionId: '{{ session.session_id }}',
+
+            async sendMessage() {
+                if (!this.newMessage.trim() || this.loading) return;
+
+                const userMessage = this.newMessage;
+                this.messages.push({role: 'user', content: userMessage});
+                this.newMessage = '';
+                this.loading = true;
+
+                try {
+                    const response = await fetch('{% url 'core:chat_message' %}', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            message: userMessage,
+                            session_id: this.sessionId
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.messages.push({role: 'assistant', content: data.response});
+                        this.$nextTick(() => {
+                            const chatContainer = document.getElementById('chat-messages');
+                            chatContainer.scrollTop = chatContainer.scrollHeight;
+                        });
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                } catch (error) {
+                    alert('Error: ' + error);
+                } finally {
+                    this.loading = false;
+                }
+            }
+        }">
+            <!-- Header -->
+            <div class="p-6 border-b">
+                <h1 class="text-2xl font-bold">💬 AI Chat Assistant</h1>
+                <p class="text-gray-600 mt-1">Ask questions about space biology research</p>
+            </div>
+
+            <!-- Chat Messages -->
+            <div id="chat-messages" class="h-96 overflow-y-auto p-6 space-y-4">
+                <template x-if="messages.length === 0">
+                    <div class="text-center text-gray-500 mt-20">
+                        <div class="text-6xl mb-4">🤖</div>
+                        <p>Start a conversation about space biology!</p>
+                    </div>
+                </template>
+
+                <template x-for="(msg, index) in messages" :key="index">
+                    <div :class="msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
+                        <div
+                            :class="msg.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-800'"
+                            class="max-w-[80%] rounded-lg p-4"
+                        >
+                            <div class="text-xs mb-1" :class="msg.role === 'user' ? 'text-indigo-200' : 'text-gray-500'">
+                                <span x-text="msg.role === 'user' ? 'You' : '🤖 AI Assistant'"></span>
+                            </div>
+                            <div class="whitespace-pre-wrap" x-text="msg.content"></div>
+                        </div>
+                    </div>
+                </template>
+
+                <template x-if="loading">
+                    <div class="flex justify-start">
+                        <div class="bg-gray-100 rounded-lg p-4">
+                            <div class="flex space-x-2">
+                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Input -->
+            <div class="p-6 border-t">
+                <form @submit.prevent="sendMessage" class="flex space-x-4">
+                    <input
+                        x-model="newMessage"
+                        type="text"
+                        placeholder="Ask about space biology research..."
+                        class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
+                        :disabled="loading"
+                    >
+                    <button
+                        type="submit"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition disabled:opacity-50"
+                        :disabled="loading || !newMessage.trim()"
+                    >
+                        Send
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Examples -->
+        <div class="mt-8 bg-purple-50 rounded-lg p-6">
+            <h3 class="font-bold mb-3">💡 Example Questions:</h3>
+            <div class="space-y-2">
+                <p class="text-gray-700">• What are the effects of microgravity on bone density?</p>
+                <p class="text-gray-700">• Summarize recent ISS experiments on plant growth</p>
+                <p class="text-gray-700">• How does space radiation affect DNA?</p>
+                <p class="text-gray-700">• What are the latest findings on muscle atrophy in space?</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

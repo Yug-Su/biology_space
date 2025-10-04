@@ -1,0 +1,126 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Home - SpaceBio AI{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white">
+    <div class="container mx-auto px-4 py-20">
+        <div class="text-center max-w-4xl mx-auto">
+            <h1 class="text-5xl md:text-6xl font-bold mb-6">
+                🚀 Space Biology Intelligence Platform
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 text-indigo-100">
+                AI-powered research assistant for {{ stats.total_articles }} NASA space biology publications
+            </p>
+
+            <!-- Search Bar -->
+            <form action="{% url 'core:search' %}" method="GET" class="mt-8">
+                <div class="flex max-w-2xl mx-auto">
+                    <input
+                        type="text"
+                        name="q"
+                        placeholder="Search space biology research..."
+                        class="flex-1 px-6 py-4 rounded-l-lg text-gray-900 text-lg focus:outline-none focus:ring-2 focus:ring-purple-300"
+                        required
+                    >
+                    <button
+                        type="submit"
+                        class="bg-indigo-600 hover:bg-indigo-700 px-8 py-4 rounded-r-lg font-semibold transition"
+                    >
+                        Search
+                    </button>
+                </div>
+                <div class="mt-4 flex justify-center space-x-4">
+                    <label class="inline-flex items-center text-white/90">
+                        <input type="radio" name="type" value="simple" checked class="mr-2">
+                        Simple Search
+                    </label>
+                    <label class="inline-flex items-center text-white/90">
+                        <input type="radio" name="type" value="semantic" class="mr-2">
+                        Semantic Search (AI)
+                    </label>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Section -->
+<div class="container mx-auto px-4 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-lg shadow-md text-center">
+            <div class="text-4xl font-bold text-indigo-600">{{ stats.total_articles }}</div>
+            <div class="text-gray-600 mt-2">Research Articles</div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md text-center">
+            <div class="text-4xl font-bold text-purple-600">{{ stats.total_embeddings }}</div>
+            <div class="text-gray-600 mt-2">AI Embeddings</div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md text-center">
+            <div class="text-4xl font-bold text-pink-600">{{ stats.total_chats }}</div>
+            <div class="text-gray-600 mt-2">Chat Sessions</div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container mx-auto px-4 py-12">
+    <h2 class="text-3xl font-bold text-center mb-12">Platform Features</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <a href="{% url 'core:search' %}" class="group">
+            <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition">
+                <div class="text-4xl mb-4">🔍</div>
+                <h3 class="text-xl font-bold mb-3 group-hover:text-indigo-600 transition">Semantic Search</h3>
+                <p class="text-gray-600">
+                    AI-powered search finds relevant research based on meaning, not just keywords
+                </p>
+            </div>
+        </a>
+
+        <a href="{% url 'core:chat' %}" class="group">
+            <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition">
+                <div class="text-4xl mb-4">💬</div>
+                <h3 class="text-xl font-bold mb-3 group-hover:text-purple-600 transition">AI Chat Assistant</h3>
+                <p class="text-gray-600">
+                    Conversational AI trained on space biology to answer your research questions
+                </p>
+            </div>
+        </a>
+
+        <a href="{% url 'core:generate' %}" class="group">
+            <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition">
+                <div class="text-4xl mb-4">✍️</div>
+                <h3 class="text-xl font-bold mb-3 group-hover:text-pink-600 transition">Article Generator</h3>
+                <p class="text-gray-600">
+                    Generate comprehensive research articles, reviews, and protocols with AI
+                </p>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Recent Articles -->
+<div class="container mx-auto px-4 py-12">
+    <h2 class="text-3xl font-bold mb-8">Recent Articles</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% for article in recent_articles %}
+        <a href="{% url 'core:article_detail' article.id %}" class="group">
+            <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
+                <h3 class="font-semibold text-lg mb-2 group-hover:text-indigo-600 transition line-clamp-2">
+                    {{ article.title }}
+                </h3>
+                <div class="flex items-center justify-between text-sm text-gray-500 mt-4">
+                    <span>{{ article.views_count }} views</span>
+                    {% if article.publication_date %}
+                    <span>{{ article.publication_date|date:"Y" }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

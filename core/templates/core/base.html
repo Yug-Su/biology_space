@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SpaceBio Intelligence Platform{% endblock %}</title>
+
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- HTMX for interactivity -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+
+    <!-- Alpine.js for components -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-8">
+                    <a href="{% url 'core:home' %}" class="text-2xl font-bold">
+                        🚀 SpaceBio AI
+                    </a>
+                    <div class="hidden md:flex space-x-4">
+                        <a href="{% url 'core:search' %}" class="hover:bg-white/20 px-3 py-2 rounded-md">Search</a>
+                        <a href="{% url 'core:chat' %}" class="hover:bg-white/20 px-3 py-2 rounded-md">AI Chat</a>
+                        <a href="{% url 'core:generate' %}" class="hover:bg-white/20 px-3 py-2 rounded-md">Generate</a>
+                        <a href="{% url 'core:analytics' %}" class="hover:bg-white/20 px-3 py-2 rounded-md">Analytics</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/admin/" class="hover:bg-white/20 px-3 py-2 rounded-md text-sm">Admin</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-20">
+        <div class="container mx-auto px-4 py-8">
+            <div class="text-center">
+                <p class="text-gray-400">
+                    🚀 SpaceBio Intelligence Platform - NASA Space Apps Challenge 2025
+                </p>
+                <p class="text-gray-500 text-sm mt-2">
+                    Powered by OpenRouter & Grok AI | {{ stats.total_articles|default:0 }} Articles Indexed
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,116 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ article.title }} - SpaceBio AI{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8" x-data="{ summary: '', loading: false }">
+    <div class="max-w-4xl mx-auto">
+        <!-- Back button -->
+        <a href="{% url 'core:search' %}" class="text-indigo-600 hover:underline mb-4 inline-block">
+            ← Back to search
+        </a>
+
+        <!-- Article Header -->
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+            <h1 class="text-3xl font-bold mb-4">{{ article.title }}</h1>
+
+            <div class="flex items-center space-x-4 text-sm text-gray-600 mb-6">
+                <span>{{ article.views_count }} views</span>
+                {% if article.publication_date %}
+                <span>Published: {{ article.publication_date|date:"F Y" }}</span>
+                {% endif %}
+                {% if article.pmc_id %}
+                <span class="text-indigo-600">{{ article.pmc_id }}</span>
+                {% endif %}
+            </div>
+
+            <!-- External Link -->
+            <a
+                href="{{ article.url }}"
+                target="_blank"
+                class="inline-flex items-center bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+            >
+                View on PubMed Central →
+            </a>
+
+            <!-- AI Summary Button -->
+            <button
+                @click="loading = true; fetch('{% url 'core:summarize_article' article.id %}', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({type: 'concise'})
+                }).then(r => r.json()).then(data => {
+                    summary = data.summary;
+                    loading = false;
+                }).catch(e => {
+                    alert('Error generating summary: ' + e);
+                    loading = false;
+                })"
+                class="ml-4 inline-flex items-center bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition disabled:opacity-50"
+                :disabled="loading"
+            >
+                <span x-show="!loading">🤖 Generate AI Summary</span>
+                <span x-show="loading" x-cloak>Generating...</span>
+            </button>
+        </div>
+
+        <!-- AI Summary -->
+        <div x-show="summary" x-cloak class="bg-purple-50 rounded-lg p-6 mb-6">
+            <h3 class="text-xl font-bold mb-3">🤖 AI Summary</h3>
+            <p class="text-gray-700" x-text="summary"></p>
+        </div>
+
+        <!-- Abstract -->
+        {% if article.abstract %}
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h3 class="text-xl font-bold mb-3">Abstract</h3>
+            <p class="text-gray-700 leading-relaxed">{{ article.abstract }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Authors -->
+        {% if article.authors %}
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h3 class="text-xl font-bold mb-3">Authors</h3>
+            <div class="flex flex-wrap gap-2">
+                {% for author in article.authors %}
+                <span class="bg-gray-100 px-3 py-1 rounded-full text-sm">{{ author }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Keywords -->
+        {% if article.keywords %}
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h3 class="text-xl font-bold mb-3">Keywords</h3>
+            <div class="flex flex-wrap gap-2">
+                {% for keyword in article.keywords %}
+                <a href="{% url 'core:search' %}?q={{ keyword }}" class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm hover:bg-indigo-200">
+                    {{ keyword }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Similar Articles -->
+        {% if similar_articles %}
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-xl font-bold mb-4">Similar Articles</h3>
+            <div class="space-y-3">
+                {% for similar in similar_articles %}
+                <a href="{% url 'core:article_detail' similar.id %}" class="block group">
+                    <div class="p-3 rounded hover:bg-gray-50 transition">
+                        <h4 class="font-medium group-hover:text-indigo-600 transition">
+                            {{ similar.title|truncatewords:20 }}
+                        </h4>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
