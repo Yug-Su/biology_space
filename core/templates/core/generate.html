@@ -1,0 +1,177 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Generate Article - SpaceBio AI{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8">✍️ AI Article Generator</h1>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8" x-data="{
+            topic: '',
+            type: 'review',
+            length: 'medium',
+            style: 'academic',
+            loading: false,
+            generated: null,
+
+            async generate() {
+                if (!this.topic.trim() || this.loading) return;
+
+                this.loading = true;
+                this.generated = null;
+
+                try {
+                    const response = await fetch('{% url 'core:generate_article' %}', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            topic: this.topic,
+                            type: this.type,
+                            length: this.length,
+                            style: this.style
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.generated = data.article;
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                } catch (error) {
+                    alert('Error: ' + error);
+                } finally {
+                    this.loading = false;
+                }
+            }
+        }">
+            <!-- Configuration Panel -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-bold mb-6">Article Configuration</h2>
+
+                <form @submit.prevent="generate" class="space-y-6">
+                    <!-- Topic -->
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Topic *</label>
+                        <input
+                            x-model="topic"
+                            type="text"
+                            placeholder="e.g., Effects of microgravity on bone density"
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
+                            required
+                        >
+                    </div>
+
+                    <!-- Type -->
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Article Type</label>
+                        <select x-model="type" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500">
+                            <option value="review">Literature Review</option>
+                            <option value="research">Research Article</option>
+                            <option value="protocol">Protocol/Methods</option>
+                        </select>
+                    </div>
+
+                    <!-- Length -->
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Length</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" x-model="length" value="short" class="mr-2">
+                                Short (500w)
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" x-model="length" value="medium" class="mr-2">
+                                Medium (1000w)
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" x-model="length" value="long" class="mr-2">
+                                Long (2000w)
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Style -->
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Writing Style</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" x-model="style" value="academic" class="mr-2">
+                                Academic
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" x-model="style" value="executive" class="mr-2">
+                                Executive
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" x-model="style" value="technical" class="mr-2">
+                                Technical
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Generate Button -->
+                    <button
+                        type="submit"
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-semibold transition disabled:opacity-50"
+                        :disabled="loading || !topic.trim()"
+                    >
+                        <span x-show="!loading">Generate Article</span>
+                        <span x-show="loading" x-cloak>Generating... (this may take 30s)</span>
+                    </button>
+                </form>
+
+                <!-- Info -->
+                <div class="mt-6 bg-blue-50 rounded-lg p-4">
+                    <h3 class="font-semibold mb-2">ℹ️ How it works</h3>
+                    <p class="text-sm text-gray-700">
+                        Our AI analyzes relevant articles from the database and generates a comprehensive article based on your specifications.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-bold mb-6">Generated Article</h2>
+
+                <template x-if="!generated && !loading">
+                    <div class="text-center text-gray-400 mt-20">
+                        <div class="text-6xl mb-4">📝</div>
+                        <p>Your generated article will appear here</p>
+                    </div>
+                </template>
+
+                <template x-if="loading">
+                    <div class="text-center mt-20">
+                        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                        <p class="mt-4 text-gray-600">Generating your article...</p>
+                    </div>
+                </template>
+
+                <template x-if="generated">
+                    <div>
+                        <div class="mb-4 flex items-center justify-between">
+                            <span class="text-sm text-gray-500">
+                                Generated in <span x-text="generated.generation_time"></span>s
+                            </span>
+                            <button
+                                @click="navigator.clipboard.writeText(generated.title + '\n\n' + generated.content)"
+                                class="text-sm text-indigo-600 hover:underline"
+                            >
+                                📋 Copy to clipboard
+                            </button>
+                        </div>
+
+                        <div class="prose max-w-none">
+                            <h3 class="text-2xl font-bold mb-4" x-text="generated.title"></h3>
+                            <div class="whitespace-pre-wrap text-gray-700" x-text="generated.content"></div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

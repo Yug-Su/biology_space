@@ -1,0 +1,53 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Analytics - SpaceBio AI{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8">📊 Platform Analytics</h1>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Top Searches -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-bold mb-6">🔍 Top Search Queries</h2>
+
+                {% if top_searches %}
+                <div class="space-y-3">
+                    {% for search in top_searches %}
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <span class="font-medium">{{ search.query_text }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-gray-500 text-center py-8">No search queries yet</p>
+                {% endif %}
+            </div>
+
+            <!-- Recent Generations -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-bold mb-6">✍️ Recent AI Generations</h2>
+
+                {% if recent_generations %}
+                <div class="space-y-3">
+                    {% for gen in recent_generations %}
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <div class="font-medium mb-1">{{ gen.title|truncatewords:10 }}</div>
+                        <div class="text-sm text-gray-600">
+                            {{ gen.article_type|capfirst }} • {{ gen.length|capfirst }} • {{ gen.style|capfirst }}
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            {{ gen.created_at|timesince }} ago
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-gray-500 text-center py-8">No generated articles yet</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
