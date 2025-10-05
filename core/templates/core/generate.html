@@ -1,188 +1,663 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
-{% block title %}Research Synthesis - SpaceBio AI{% endblock %}
+{% block title %}Research Synthesis - SpaceBio{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-image: url("{% static 'images/chat.jpg' %}");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  position: relative;
+  font-family: 'Quicksand', sans-serif;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: -1;
+}
+
+.synthesis-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.synthesis-header {
+  text-align: center;
+  margin-bottom: 40px;
+  color: white;
+}
+
+.synthesis-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.synthesis-header p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.synthesis-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+/* Configuration Panel */
+.config-panel {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  height: fit-content;
+}
+
+.panel-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: #1a202c;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #2d3748;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  color: black;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  
+  background: white;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.form-input:focus {
+  outline: none;
+  color: black;
+  border-color: #27ae60;
+  box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+}
+
+.form-select {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #e2e8f0;
+  color: black;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+  cursor: pointer;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #27ae60;
+  box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+}
+
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #4a5568;
+  padding: 10px 18px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.radio-label:hover {
+  border-color: #27ae60;
+  background: #f0f9f4;
+}
+
+.radio-label input[type="radio"] {
+  margin-right: 8px;
+  cursor: pointer;
+  accent-color: #27ae60;
+}
+
+.radio-label:has(input[type="radio"]:checked) {
+  border-color: #27ae60;
+  background: #e8f5e9;
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.generate-button {
+  width: 100%;
+  padding: 16px;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.generate-button:hover:not(:disabled) {
+  background: #229954;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(39, 174, 96, 0.4);
+}
+
+.generate-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.info-box {
+  margin-top: 25px;
+  background: #e8f5e9;
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid #a5d6a7;
+}
+
+.info-box h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #27ae60;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-box p {
+  font-size: 0.9rem;
+  color: #2d5016;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Preview Panel */
+.preview-panel {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  min-height: 600px;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+.preview-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: #a0aec0;
+  text-align: center;
+}
+
+.preview-empty i {
+  font-size: 5rem;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.preview-empty p {
+  font-size: 1.1rem;
+  margin: 5px 0;
+}
+
+.preview-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid #e2e8f0;
+  border-top-color: #27ae60;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.preview-loading p {
+  margin-top: 20px;
+  color: #4a5568;
+  font-size: 1rem;
+}
+
+.preview-loading .sub-text {
+  font-size: 0.9rem;
+  color: #718096;
+  margin-top: 10px;
+}
+
+.success-banner {
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+  color: #27ae60;
+  font-size: 0.9rem;
+}
+
+.success-banner strong {
+  font-weight: 700;
+}
+
+.preview-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.preview-meta {
+  font-size: 0.85rem;
+  color: #718096;
+}
+
+.copy-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: white;
+  border: 2px solid #27ae60;
+  color: #27ae60;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.copy-button:hover {
+  background: #27ae60;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.preview-content h3 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 20px;
+  line-height: 1.3;
+}
+
+.preview-text {
+  color: #4a5568;
+  line-height: 1.8;
+  font-size: 1rem;
+  white-space: pre-wrap;
+}
+
+/* Scrollbar styling */
+.preview-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.preview-panel::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.preview-panel::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.preview-panel::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .synthesis-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .synthesis-header h1 {
+    font-size: 2rem;
+  }
+
+  .config-panel, .preview-panel {
+    padding: 20px;
+  }
+
+  .radio-group {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .radio-label {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .synthesis-container {
+    padding: 20px 15px;
+  }
+
+  .synthesis-header h1 {
+    font-size: 1.6rem;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .synthesis-header p {
+    font-size: 0.95rem;
+  }
+
+  .panel-title {
+    font-size: 1.3rem;
+  }
+
+  .preview-content h3 {
+    font-size: 1.5rem;
+  }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-6xl mx-auto">
-        <h1 class="text-3xl font-bold mb-8">🔬 Research Synthesis Engine</h1>
-        <p class="text-gray-600 mb-6">Synthesize comprehensive reports by analyzing and cross-referencing multiple research articles from our database</p>
+<br>
+<br>
+<br>
+<div class="synthesis-container" x-data="{
+    topic: '',
+    type: 'review',
+    length: 'medium',
+    style: 'academic',
+    loading: false,
+    generated: null,
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8" x-data="{
-            topic: '',
-            type: 'review',
-            length: 'medium',
-            style: 'academic',
-            loading: false,
-            generated: null,
+    async generate() {
+        if (!this.topic.trim() || this.loading) return;
 
-            async generate() {
-                if (!this.topic.trim() || this.loading) return;
+        this.loading = true;
+        this.generated = null;
 
-                this.loading = true;
-                this.generated = null;
+        try {
+            const response = await fetch('{% url 'core:generate_article' %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    topic: this.topic,
+                    type: this.type,
+                    length: this.length,
+                    style: this.style
+                })
+            });
 
-                try {
-                    const response = await fetch('{% url 'core:generate_article' %}', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            topic: this.topic,
-                            type: this.type,
-                            length: this.length,
-                            style: this.style
-                        })
-                    });
+            const data = await response.json();
 
-                    const data = await response.json();
-
-                    if (data.success) {
-                        this.generated = data.article;
-                    } else {
-                        alert('Error: ' + data.error);
-                    }
-                } catch (error) {
-                    alert('Error: ' + error);
-                } finally {
-                    this.loading = false;
-                }
+            if (data.success) {
+                this.generated = data.article;
+            } else {
+                alert('Error: ' + data.error);
             }
-        }">
-            <!-- Configuration Panel -->
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-bold mb-6">Synthesis Parameters</h2>
+        } catch (error) {
+            alert('Error: ' + error);
+        } finally {
+            this.loading = false;
+        }
+    },
 
-                <form @submit.prevent="generate" class="space-y-6">
-                    <!-- Topic -->
-                    <div>
-                        <label class="block text-sm font-semibold mb-2">Topic *</label>
-                        <input
-                            x-model="topic"
-                            type="text"
-                            placeholder="e.g., Effects of microgravity on bone density"
-                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
-                            required
-                        >
-                    </div>
+    copyToClipboard() {
+        const text = this.generated.title + '\n\n' + this.generated.content;
+        navigator.clipboard.writeText(text).then(() => {
+            alert('✅ Copied to clipboard!');
+        });
+    }
+}">
+  <!-- Header -->
+  <div class="synthesis-header">
+    <h1>
+      <i class="fas fa-flask"></i>
+      Research Synthesis Engine
+    </h1>
+    <p>
+      Generate comprehensive reports by analyzing and cross-referencing multiple research articles from our database
+    </p>
+  </div>
 
-                    <!-- Type -->
-                    <div>
-                        <label class="block text-sm font-semibold mb-2">Article Type</label>
-                        <select x-model="type" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500">
-                            <option value="review">Literature Review</option>
-                            <option value="research">Research Article</option>
-                            <option value="protocol">Protocol/Methods</option>
-                        </select>
-                    </div>
+  <!-- Main Grid -->
+  <div class="synthesis-grid">
+    <!-- Configuration Panel -->
+    <div class="config-panel">
+      <h2 class="panel-title">
+        <i class="fas fa-cogs"></i>
+        Synthesis Parameters
+      </h2>
 
-                    <!-- Length -->
-                    <div>
-                        <label class="block text-sm font-semibold mb-2">Length</label>
-                        <div class="flex space-x-4">
-                            <label class="flex items-center">
-                                <input type="radio" x-model="length" value="short" class="mr-2">
-                                Short (500w)
-                            </label>
-                            <label class="flex items-center">
-                                <input type="radio" x-model="length" value="medium" class="mr-2">
-                                Medium (1000w)
-                            </label>
-                            <label class="flex items-center">
-                                <input type="radio" x-model="length" value="long" class="mr-2">
-                                Long (2000w)
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Style -->
-                    <div>
-                        <label class="block text-sm font-semibold mb-2">Writing Style</label>
-                        <div class="flex space-x-4">
-                            <label class="flex items-center">
-                                <input type="radio" x-model="style" value="academic" class="mr-2">
-                                Academic
-                            </label>
-                            <label class="flex items-center">
-                                <input type="radio" x-model="style" value="executive" class="mr-2">
-                                Executive
-                            </label>
-                            <label class="flex items-center">
-                                <input type="radio" x-model="style" value="technical" class="mr-2">
-                                Technical
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Generate Button -->
-                    <button
-                        type="submit"
-                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-semibold transition disabled:opacity-50"
-                        :disabled="loading || !topic.trim()"
-                    >
-                        <span x-show="!loading">🔬 Synthesize Research</span>
-                        <span x-show="loading" x-cloak>Analyzing sources... (this may take 30s)</span>
-                    </button>
-                </form>
-
-                <!-- Info -->
-                <div class="mt-6 bg-blue-50 rounded-lg p-4">
-                    <h3 class="font-semibold mb-2">ℹ️ How it works</h3>
-                    <p class="text-sm text-gray-700">
-                        This tool searches our database of 572 NASA research articles, identifies relevant sources,
-                        and synthesizes their findings into a comprehensive report. <strong>All content is based on real research data</strong> -
-                        no hallucinated information.
-                    </p>
-                </div>
-            </div>
-
-            <!-- Preview Panel -->
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-bold mb-6">Synthesized Report</h2>
-
-                <template x-if="!generated && !loading">
-                    <div class="text-center text-gray-400 mt-20">
-                        <div class="text-6xl mb-4">📊</div>
-                        <p>Your research synthesis will appear here</p>
-                        <p class="text-sm mt-2">Based on real articles from our database</p>
-                    </div>
-                </template>
-
-                <template x-if="loading">
-                    <div class="text-center mt-20">
-                        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-                        <p class="mt-4 text-gray-600">Searching and analyzing research articles...</p>
-                        <p class="text-sm text-gray-500 mt-2">Cross-referencing findings from multiple sources</p>
-                    </div>
-                </template>
-
-                <template x-if="generated">
-                    <div>
-                        <div class="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                            <p class="text-sm text-green-800">
-                                ✅ Synthesis based on <strong x-text="generated.source_articles || 'multiple'"></strong> research articles
-                                | Completed in <strong x-text="(generated.synthesis_time || generated.generation_time)"></strong>s
-                            </p>
-                        </div>
-                        <div class="mb-4 flex items-center justify-between">
-                            <span class="text-sm text-gray-500">
-                                Data-driven synthesis from our research database
-                            </span>
-                            <button
-                                @click="navigator.clipboard.writeText(generated.title + '\n\n' + generated.content)"
-                                class="text-sm text-indigo-600 hover:underline"
-                            >
-                                📋 Copy to clipboard
-                            </button>
-                        </div>
-
-                        <div class="prose max-w-none">
-                            <h3 class="text-2xl font-bold mb-4" x-text="generated.title"></h3>
-                            <div class="whitespace-pre-wrap text-gray-700" x-text="generated.content"></div>
-                        </div>
-                    </div>
-                </template>
-            </div>
+      <form @submit.prevent="generate">
+        <!-- Topic -->
+        <div class="form-group">
+          <label class="form-label">
+            Topic *
+          </label>
+          <input
+            x-model="topic"
+            type="text"
+            placeholder="ex: Effects of microgravity on bone density"
+            class="form-input"
+            required
+          >
         </div>
+
+        <!-- Type -->
+        <div class="form-group">
+          <label class="form-label">
+            Article Type
+          </label>
+          <select x-model="type" class="form-select">
+            <option value="review">Literature Review</option>
+            <option value="research">Research Article</option>
+            <option value="protocol">Protocol/Methods</option>
+          </select>
+        </div>
+
+        <!-- Length -->
+        <div class="form-group">
+          <label class="form-label">
+            Length
+          </label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" x-model="length" value="short">
+              <span>Court (500 mots)</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" x-model="length" value="medium">
+              <span>Moyen (1000 mots)</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" x-model="length" value="long">
+              <span>Long (2000 mots)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Style -->
+        <div class="form-group">
+          <label class="form-label">
+            Writing Style
+          </label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" x-model="style" value="academic">
+              <span>Academic</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" x-model="style" value="executive">
+              <span>Executive</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" x-model="style" value="technical">
+              <span>Technical</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Generate Button -->
+        <button
+          type="submit"
+          class="generate-button"
+          :disabled="loading || !topic.trim()"
+        >
+          <span x-show="!loading">
+            <i class="fas fa-magic"></i> Synthesize Research
+          </span>
+          <span x-show="loading" x-cloak>
+            <i class="fas fa-spinner fa-spin"></i> Analyzing sources... (may take 30s)
+          </span>
+        </button>
+      </form>
+
+      <!-- Info Box -->
+      <div class="info-box">
+        <h3>
+          <i class="fas fa-info-circle"></i>
+          How it works
+        </h3>
+        <p>
+          This tool searches our database of 572 NASA research articles,
+          identifies relevant sources and synthesizes their findings into a comprehensive report.
+          <strong>All content is based on real research data</strong> -
+          no invented information.
+        </p>
+      </div>
     </div>
+
+    <!-- Preview Panel -->
+    <div class="preview-panel">
+      <h2 class="panel-title">
+        <i class="fas fa-file-alt"></i>
+        Synthesized Report
+      </h2>
+
+      <!-- Empty State -->
+      <template x-if="!generated && !loading">
+        <div class="preview-empty">
+          <i class="fas fa-chart-bar"></i>
+          <p>Your research synthesis will appear here</p>
+          <p style="font-size: 0.9rem; margin-top: 10px;">
+            Based on real articles from our database
+          </p>
+        </div>
+      </template>
+
+      <!-- Loading State -->
+      <template x-if="loading">
+        <div class="preview-loading">
+          <div class="spinner"></div>
+          <p>Searching and analyzing research articles...</p>
+          <p class="sub-text">Cross-referencing results from multiple sources</p>
+        </div>
+      </template>
+
+      <!-- Generated Content -->
+      <template x-if="generated">
+        <div>
+          <!-- Success Banner -->
+          <div class="success-banner">
+            <i class="fas fa-check-circle"></i>
+            Synthesis based on <strong x-text="generated.source_articles || 'multiple'"></strong> research articles
+            | Completed in <strong x-text="(generated.synthesis_time || generated.generation_time)"></strong>s
+          </div>
+
+          <!-- Actions -->
+          <div class="preview-actions">
+            <span class="preview-meta">
+              <i class="fas fa-database"></i>
+              Synthesis driven by data from our research database
+            </span>
+            <button @click="copyToClipboard()" class="copy-button">
+              <i class="fas fa-copy"></i>
+              Copy
+            </button>
+          </div>
+
+          <!-- Content -->
+          <div class="preview-content">
+            <h3 x-text="generated.title"></h3>
+            <div class="preview-text" x-text="generated.content"></div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/animation.js' %}"></script>
 {% endblock %}

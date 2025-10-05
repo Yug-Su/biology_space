@@ -1,0 +1,395 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Experiment Scenario Extractor - SpaceBio AI{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8" x-data="experimentExtractor()">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-lg p-6 text-white mb-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="text-4xl">🧪</div>
+          <div>
+            <h1 class="text-2xl md:text-3xl font-extrabold">Experiment Scenario Extractor</h1>
+            <p class="text-white/90">Automatically extract structured experimental scenarios from scientific articles</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <button @click="downloadJSON"
+                  :disabled="!extracted"
+                  class="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm disabled:opacity-50">
+            ⬇️ Export JSON
+          </button>
+          <button @click="downloadCSV"
+                  :disabled="!extracted"
+                  class="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm disabled:opacity-50">
+            ⬇️ Export CSV
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sticky quick action bar -->
+    <div class="sticky top-20 z-30 mb-4">
+      <div class="bg-white/90 backdrop-blur rounded-xl shadow-md p-4 border border-indigo-100">
+        <div class="flex flex-col md:flex-row md:items-center md:gap-3 gap-3">
+          <select x-model="selectedArticleId"
+                  class="flex-1 px-3 py-2 border-2 border-indigo-200 rounded-lg focus:outline-none focus:border-indigo-500">
+            <option value="">Choose an article…</option>
+            {% for article in articles %}
+              <option value="{{ article.id }}">{{ article.title|truncatechars:120 }}</option>
+            {% endfor %}
+          </select>
+          <div class="flex items-center gap-2">
+            <button @click="extract"
+                    :disabled="loading || !selectedArticleId"
+                    class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg disabled:opacity-50">
+              Extract
+            </button>
+            <span class="text-xs text-gray-500" x-show="!selectedArticleId">Select an article to enable extract</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <div class="bg-white rounded-xl shadow-md p-5 lg:col-span-2">
+        <h2 class="font-bold mb-3">How it works</h2>
+        <p class="text-sm text-gray-600">
+          The extractor parses the selected article and returns standardized scenarios including steps, variables, methods, results, conclusions, and cross-study suggestions.
+        </p>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-md p-5">
+        <h2 class="font-bold mb-3">Notes</h2>
+        <div class="space-y-3 text-sm text-gray-700">
+          <p>• Extraction uses AI guidance and your article text. If some fields are missing, you'll see "unknown".</p>
+          <p>• You can export the extracted scenarios to JSON or CSV for reuse in other tools.</p>
+          <p>• Combine scenarios across articles to form new hypotheses.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Scenarios list -->
+      <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-bold text-lg">Extracted Scenarios</h2>
+          <div class="flex items-center gap-2">
+            <button @click="copyScenariosToClipboard"
+                    :disabled="!extracted || (scenarios||[]).length === 0"
+                    class="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm disabled:opacity-50">
+              📋 Copy
+            </button>
+          </div>
+        </div>
+
+        <template x-if="!extracted">
+          <div class="text-gray-500 text-sm">
+            Extract scenarios to see structured results.
+          </div>
+        </template>
+
+        <template x-if="extracted">
+          <div class="space-y-4">
+            <template x-for="(sc, idx) in scenarios" :key="idx">
+              <div class="border-2 border-indigo-100 rounded-xl p-4">
+                <div class="flex items-center justify-between">
+                  <h3 class="font-semibold text-indigo-700" x-text="sc.title || ('Scenario #' + (idx+1))"></h3>
+                  <span class="text-xs text-gray-500">Objective</span>
+                </div>
+                <p class="text-sm text-gray-700 mt-1" x-text="sc.objective || 'unknown'"></p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                  <div>
+                    <h4 class="font-semibold text-sm">Steps</h4>
+                    <ul class="text-sm text-gray-700 list-disc ml-4">
+                      <template x-for="(step, sidx) in (sc.steps || [])" :key="sidx">
+                        <li x-text="step"></li>
+                      </template>
+                      <li x-show="!(sc.steps || []).length" class="text-gray-500">unknown</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-sm">Variables</h4>
+                    <ul class="text-sm text-gray-700 list-disc ml-4">
+                      <template x-for="(v, vidx) in (sc.variables || [])" :key="vidx">
+                        <li x-text="v"></li>
+                      </template>
+                      <li x-show="!(sc.variables || []).length" class="text-gray-500">unknown</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                  <div>
+                    <h4 class="font-semibold text-sm">Methods</h4>
+                    <ul class="text-sm text-gray-700 list-disc ml-4">
+                      <template x-for="(m, midx) in (sc.methods || [])" :key="midx">
+                        <li x-text="m"></li>
+                      </template>
+                      <li x-show="!(sc.methods || []).length" class="text-gray-500">unknown</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-sm">Results</h4>
+                    <ul class="text-sm text-gray-700 list-disc ml-4">
+                      <template x-for="(r, ridx) in (sc.results || [])" :key="ridx">
+                        <li x-text="r"></li>
+                      </template>
+                      <li x-show="!(sc.results || []).length" class="text-gray-500">unknown</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="mt-3">
+                  <h4 class="font-semibold text-sm">Conclusions</h4>
+                  <ul class="text-sm text-gray-700 list-disc ml-4">
+                    <template x-for="(c, cidx) in (sc.conclusions || [])" :key="cidx">
+                      <li x-text="c"></li>
+                    </template>
+                    <li x-show="!(sc.conclusions || []).length" class="text-gray-500">unknown</li>
+                  </ul>
+                </div>
+              </div>
+            </template>
+
+            <div x-show="!(scenarios||[]).length" class="text-gray-500 text-sm">
+              No scenarios found.
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- Right Column: Scenario Flow Graph + Suggestions -->
+      <div class="space-y-6">
+        <!-- Scenario Flow Graph -->
+        <div class="bg-white rounded-xl shadow-md p-5">
+          <h2 class="font-bold text-lg mb-3">Scenario Flow Graph</h2>
+          <div x-show="!extracted" class="text-gray-500 text-sm">
+            Extract to visualize the first scenario as a flow graph (steps as nodes).
+          </div>
+          <div x-show="extracted" class="border-2 border-indigo-100 rounded-lg">
+            <div id="scenario-cy" class="h-96 md:h-[360px]"></div>
+          </div>
+        </div>
+
+        <!-- Cross-study suggestions -->
+        <div class="bg-white rounded-xl shadow-md p-5">
+          <h2 class="font-bold text-lg mb-3">Cross-Study Suggestions</h2>
+          <template x-if="!extracted">
+            <div class="text-gray-500 text-sm">
+              Extract scenarios to see suggestions for combining protocols across studies.
+            </div>
+          </template>
+          <template x-if="extracted">
+            <div class="space-y-3">
+              <template x-for="(sug, sidx) in (suggestions || [])" :key="sidx">
+                <div class="border-2 border-purple-100 rounded-xl p-3">
+                  <div class="font-semibold text-purple-700" x-text="sug.idea || ('Suggestion #' + (sidx+1))"></div>
+                  <div class="text-sm text-gray-700 mt-1">
+                    <span class="font-semibold">Rationale:</span>
+                    <span x-text="sug.rationale || 'unknown'"></span>
+                  </div>
+                  <div class="text-sm text-gray-700 mt-1">
+                    <span class="font-semibold">Hypothesis:</span>
+                    <span x-text="sug.hypothesis || 'unknown'"></span>
+                  </div>
+                </div>
+              </template>
+              <div x-show="!(suggestions||[]).length" class="text-gray-500 text-sm">
+                No suggestions provided.
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div x-show="loading" class="mt-6 text-center text-gray-600">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      <p class="mt-2 text-sm">Extracting scenarios…</p>
+    </div>
+  </div>
+
+  <!-- Mobile floating Extract button -->
+  <button @click="extract"
+          :disabled="loading || !selectedArticleId"
+          class="md:hidden fixed bottom-6 right-6 px-5 py-3 rounded-full shadow-lg text-white disabled:opacity-50"
+          :class="(selectedArticleId && !loading) ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-400'">
+    Extract
+  </button>
+</div>
+
+<!-- Cytoscape for scenario flow -->
+<script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
+
+<script>
+function experimentExtractor() {
+  return {
+    selectedArticleId: '',
+    loading: false,
+    extracted: false,
+    scenarios: [],
+    suggestions: [],
+    rawText: '',
+    cyFlow: null,
+
+    async extract() {
+      if (!this.selectedArticleId) return;
+      this.loading = true;
+      this.extracted = false;
+      this.scenarios = [];
+      this.suggestions = [];
+      this.rawText = '';
+      try {
+        const url = '{% url "core:extract_scenarios" %}';
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ article_id: this.selectedArticleId })
+        });
+        const data = await res.json();
+        if (!data.success) {
+          alert('Error: ' + (data.error || 'Extraction failed'));
+          return;
+        }
+        if (data.data) {
+          this.scenarios = data.data.scenarios || [];
+          this.suggestions = data.data.cross_study_suggestions || [];
+          this.extracted = true;
+          this.$nextTick(() => { this.renderFlowGraph(); this.scrollToGraph(); });
+        } else if (data.data_raw) {
+          // If we got raw text, keep it for manual inspection
+          this.rawText = data.data_raw;
+          this.extracted = true;
+        } else {
+          alert('No data returned.');
+        }
+      } catch (e) {
+        alert('Network error: ' + e.message);
+      } finally {
+        this.loading = false;
+      }                                                                                                                   
+    },
+
+    renderFlowGraph() {
+      const container = document.getElementById('scenario-cy');
+      if (!container) return;
+      const first = (this.scenarios || [])[0];
+      if (!first || !Array.isArray(first.steps) || first.steps.length === 0) {
+        container.innerHTML = '<div class="p-4 text-sm text-gray-500">No steps to visualize.</div>';
+        return;
+      }
+
+      const elements = [];
+      // Create nodes for each step
+      first.steps.forEach((step, idx) => {
+        const id = `s${idx+1}`;
+        elements.push({
+          data: { id, label: step }
+        });
+        if (idx > 0) {
+          elements.push({
+            data: { id: `e${idx}`, source: `s${idx}`, target: id }
+          });
+        }
+      });
+
+      // Init or update Cytoscape
+      if (!this.cyFlow) {
+        this.cyFlow = cytoscape({
+          container,
+          elements,
+          style: [
+            { selector: 'node', style: { 'label': 'data(label)', 'font-size': '10px', 'text-wrap': 'wrap', 'text-max-width': 180, 'background-color': '#6366F1', 'shape': 'round-rectangle', 'color': '#fff' } },
+            { selector: 'edge', style: { 'curve-style': 'bezier', 'target-arrow-shape': 'triangle', 'line-color': '#94A3B8', 'target-arrow-color': '#94A3B8', 'width': 2 } }
+          ],
+          layout: { name: 'breadthfirst', directed: true, padding: 10, spacingFactor: 1.15 }
+        });
+        setTimeout(() => this.cyFlow.fit(), 0);
+      } else {
+        this.cyFlow.json({ elements });
+        this.cyFlow.layout({ name: 'breadthfirst', directed: true, padding: 10, spacingFactor: 1.15 }).run();
+        this.cyFlow.fit();
+      }
+    },
+ 
+    scrollToGraph() {
+      const container = document.getElementById('scenario-cy');
+      if (!container) return;
+      try {
+        container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (e) {
+        const rect = container.getBoundingClientRect();
+        window.scrollTo(0, window.scrollY + rect.top - 80);
+      }
+    },
+ 
+    copyScenariosToClipboard() {
+      if (!this.extracted) return;
+      const payload = {
+        scenarios: this.scenarios,
+        cross_study_suggestions: this.suggestions,
+        raw: this.rawText
+      };
+      navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+      alert('Scenarios copied to clipboard.');
+    },
+
+    downloadJSON() {
+      if (!this.extracted) return alert('No scenarios yet.');
+      const payload = {
+        scenarios: this.scenarios,
+        cross_study_suggestions: this.suggestions,
+        raw: this.rawText
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `experiment_scenarios_article_${this.selectedArticleId}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    },
+
+    downloadCSV() {
+      if (!this.extracted) return alert('No scenarios yet.');
+      // Flatten scenarios into CSV rows
+      const rows = [];
+      (this.scenarios || []).forEach((sc, idx) => {
+        rows.push({
+          scenario_index: idx + 1,
+          title: sc.title || '',
+          objective: sc.objective || '',
+          steps: (sc.steps || []).join(' | '),
+          variables: (sc.variables || []).join(' | '),
+          methods: (sc.methods || []).join(' | '),
+          results: (sc.results || []).join(' | '),
+          conclusions: (sc.conclusions || []).join(' | ')
+        });
+      });
+
+      // Convert to CSV
+      const headers = ['scenario_index', 'title', 'objective', 'steps', 'variables', 'methods', 'results', 'conclusions'];
+      const csv = [
+        headers.join(','),
+        ...rows.map(r => headers.map(h => `"${String(r[h]).replace(/"/g, '""')}"`).join(','))
+      ].join('\n');
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `experiment_scenarios_article_${this.selectedArticleId}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  }
+}
+</script>
+{% endblock %}

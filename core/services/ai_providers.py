@@ -157,7 +157,8 @@ class AIProvider:
         self,
         messages: List[Dict[str, str]],
         max_tokens: int = 1000,
-        context_articles: Optional[List[str]] = None
+        context_articles: Optional[List[str]] = None,
+        system_prompt: Optional[str] = None
     ) -> str:
         """
         Chat with AI maintaining conversation history
@@ -170,8 +171,9 @@ class AIProvider:
         Returns:
             AI response
         """
-        # Add system prompt with space biology context
-        system_prompt = """You are an expert AI assistant specialized in space biology and microgravity research.
+        # Add system prompt with space biology context (allow override)
+        if system_prompt is None:
+            system_prompt = """You are an expert AI assistant specialized in space biology and microgravity research.
 
 Your knowledge domain includes:
 - Effects of microgravity on biological systems (cells, tissues, organisms)
@@ -191,7 +193,6 @@ IMPORTANT CONSTRAINTS:
 5. Be accurate and admit when you don't have specific information
 
 Maintain a professional, scientific tone while being accessible to non-experts."""
-
         # Add context articles if provided
         if context_articles:
             context_text = "\n\nRELEVANT RESEARCH ARTICLES:\n" + "\n".join(

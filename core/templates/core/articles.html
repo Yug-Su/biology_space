@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/SplitText.min.js"></script>
+    <script src="js/animation.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Articles - Biology Space</title>
+</head>
+<body>
+    <!-- Barre de navigation -->
+    <header class="navbar">
+      <div class="header-left">
+        <button class="hamburger" aria-label="Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <div class="logo">
+          <img src="images/biospace.png" alt="Biology Space Logo">
+          <span>Biology Space</span>
+        </div>
+      </div>
+      
+      <!-- Bouton de connexion visible uniquement sur mobile -->
+      <a href="#" class="mobile-login-btn">Connexion</a>
+
+      <nav class="nav-links">
+        <a href="#" class="nav-link active">Articles</a>
+        <a href="#" class="nav-link">Chat</a>
+        <a href="#" class="nav-link">Connexion</a>
+        <a href="#" class="nav-link">Inscription</a>
+      </nav>
+    </header>
+
+    <!-- Bannière avec image -->
+    <div class="articles-hero">
+      <img src="images/articles.jpg" alt="Biologie spatiale">
+      <div class="hero-content">
+        <h1>Explorer les Articles</h1>
+        <p>Découvrez nos dernières publications sur la biologie spatiale</p>
+        <form class="search-container">
+          <input type="text" placeholder="Rechercher des articles, sujets...">
+          <button type="submit" aria-label="Rechercher">
+            <i class="fas fa-search"></i>
+          </button>
+        </form>
+          </div>
+      </div>
+    </div>
+
+    <!-- Filtres et tris -->
+    <section class="filters-section">
+        <div class="container">
+            <div class="filters-container">
+                <div class="filter-group">
+                    <label for="category-filter">Catégorie :</label>
+                    <select id="category-filter" class="filter-select">
+                        <option value="">Toutes les catégories</option>
+                        <option value="biologie">Biologie Spatiale</option>
+                        <option value="recherche">Recherche</option>
+                        <option value="microbiologie">Microbiologie</option>
+                        <option value="physiologie">Physiologie</option>
+                        <option value="botanique">Botanique Spatiale</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="sort-by">Trier par :</label>
+                    <select id="sort-by" class="filter-select">
+                        <option value="recent">Plus récent</option>
+                        <option value="popular">Plus populaire</option>
+                        <option value="title">Titre (A-Z)</option>
+                    </select>
+                </div>
+                
+                <button class="filter-reset">Réinitialiser les filtres</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section des articles -->
+    <section class="articles-listing">
+        <div class="container">
+            <div class="articles-grid" id="articles-container">
+                <!-- Les articles seront chargés ici dynamiquement -->
+            </div>
+            
+            <div class="pagination">
+                <button class="pagination-button" id="prev-page">
+                    <i class="fas fa-chevron-left"></i> Précédent
+                </button>
+                <div class="page-numbers">
+                    <span class="page-number active">1</span>
+                    <span class="page-number">2</span>
+                    <span class="page-number">3</span>
+                    <span class="page-dots">...</span>
+                    <span class="page-number">10</span>
+                </div>
+                <button class="pagination-button" id="next-page">
+                    Suivant <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pied de page -->
+    <footer class="site-footer">
+        <!-- Le même pied de page que index.html -->
+    </footer>
+
+    <script>
+        // Données des articles (à remplacer par une requête API en production)
+        const articles = [
+            // Les 6 premiers articles de la page d'accueil
+            {
+                id: 1,
+                title: "L'impact des rayons cosmiques sur l'ADN des astronautes",
+                excerpt: "Une étude approfondie sur les effets des radiations spatiales sur le matériel génétique humain lors des missions de longue durée.",
+                category: "Recherche",
+                date: "5 octobre 2025",
+                image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+                readTime: "5 min"
+            },
+            {
+                id: 2,
+                title: "Culture de plantes en microgravité : défis et solutions",
+                excerpt: "Comment les scientifiques développent des méthodes pour cultiver des aliments frais dans l'espace pour les futures missions habitées.",
+                category: "Botanique Spatiale",
+                date: "3 octobre 2025",
+                image: "https://images.unsplash.com/photo-1581094271901-8022df4466f9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+                readTime: "4 min"
+            },
+            {
+                id: 3,
+                title: "Les extrêmophiles : clé de la vie sur Mars ?",
+                excerpt: "Comment l'étude des organismes extrêmophiles sur Terre nous aide à chercher la vie sur d'autres planètes.",
+                category: "Microbiologie",
+                date: "1 octobre 2025",
+                image: "https://images.unsplash.com/photo-1593061892630-7448caddf844?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+                readTime: "6 min"
+            },
+            {
+                id: 4,
+                title: "Effets de la microgravité sur le système musculaire humain",
+                excerpt: "Analyse des adaptations physiologiques des astronautes et des contre-mesures pour préserver la masse musculaire.",
+                category: "Physiologie",
+                date: "28 septembre 2025",
+                image: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+                readTime: "7 min"
+            },
+            // Ajoutez plus d'articles ici...
+        ];
+
+        // Fonction pour afficher les articles
+        function displayArticles(articlesToShow) {
+            const container = document.getElementById('articles-container');
+            container.innerHTML = '';
+            
+            articlesToShow.forEach(article => {
+                const articleElement = document.createElement('article');
+                articleElement.className = 'article-card';
+                articleElement.innerHTML = `
+                    <div class="article-image">
+                        <img src="${article.image}" alt="${article.title}">
+                        <span class="article-category">${article.category}</span>
+                    </div>
+                    <div class="article-content">
+                        <h3>${article.title}</h3>
+                        <p class="article-excerpt">${article.excerpt}</p>
+                        <div class="article-meta">
+                            <span class="article-date">${article.date}</span>
+                            <span class="article-read-time">${article.readTime}</span>
+                            <a href="article-${article.id}.html" class="read-more">Lire l'article →</a>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(articleElement);
+            });
+        }
+
+        // Afficher les articles au chargement de la page
+        document.addEventListener('DOMContentLoaded', () => {
+            displayArticles(articles);
+            
+            // Gestion des filtres
+            const categoryFilter = document.getElementById('category-filter');
+            const sortBy = document.getElementById('sort-by');
+            const resetButton = document.querySelector('.filter-reset');
+            
+            // Fonction pour appliquer les filtres
+            function applyFilters() {
+                let filtered = [...articles];
+                
+                // Filtre par catégorie
+                if (categoryFilter.value) {
+                    filtered = filtered.filter(article => 
+                        article.category.toLowerCase().includes(categoryFilter.value.toLowerCase())
+                    );
+                }
+                
+                // Tri
+                if (sortBy.value === 'recent') {
+                    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+                } else if (sortBy.value === 'popular') {
+                    // Ici, vous pourriez trier par popularité si vous avez ces données
+                    filtered.sort((a, b) => b.id - a.id); // Exemple de tri par ID (à remplacer)
+                } else if (sortBy.value === 'title') {
+                    filtered.sort((a, b) => a.title.localeCompare(b.title));
+                }
+                
+                displayArticles(filtered);
+            }
+            
+            // Écouteurs d'événements
+            categoryFilter.addEventListener('change', applyFilters);
+            sortBy.addEventListener('change', applyFilters);
+            
+            // Réinitialisation des filtres
+            resetButton.addEventListener('click', () => {
+                categoryFilter.value = '';
+                sortBy.value = 'recent';
+                applyFilters();
+            });
+            
+            // Recherche
+            const searchForm = document.querySelector('.search-form');
+            if (searchForm) {
+                searchForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const searchTerm = searchForm.querySelector('input[name="q"]').value.toLowerCase();
+                    const filtered = articles.filter(article => 
+                        article.title.toLowerCase().includes(searchTerm) || 
+                        article.excerpt.toLowerCase().includes(searchTerm) ||
+                        article.category.toLowerCase().includes(searchTerm)
+                    );
+                    displayArticles(filtered);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
