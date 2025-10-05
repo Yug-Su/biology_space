@@ -1,251 +1,866 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
-{% block title %}Literature Review - SpaceBio AI{% endblock %}
+{% block title %}Literature Review - Biology Space{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<style>
+    /* Literature Review Page Styles */
+body.literature-review {
+  margin: 0;
+  min-height: 100vh;
+  background-image: url("../images/chat.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  position: relative;
+  font-family: 'Quicksand', sans-serif;
+}
+
+body.literature-review::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: -1;
+}
+
+.review-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* Add all the other CSS rules from your template here */
+/* ... rest of your CSS ... */
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-image: url("{% static 'images/chat.jpg' %}");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  position: relative;
+  font-family: 'Quicksand', sans-serif;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: -1;
+}
+
+.review-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* Header */
+.review-header {
+  background: #27ae60;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  padding: 40px;
+  text-align: center;
+  color: white;
+  margin-bottom: 40px;
+}
+
+.review-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.review-header p {
+  font-size: 1.1rem;
+  opacity: 0.95;
+  margin: 0;
+}
+
+/* Grid Layout */
+.review-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+}
+
+/* Main Panel */
+.main-panel {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.panel-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: #1a202c;
+}
+
+/* Form Elements */
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #2d3748;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Slider */
+.slider-container {
+  margin-bottom: 25px;
+}
+
+.slider-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #2d3748;
+}
+
+.slider-value {
+  color: #667eea;
+  font-size: 1.1rem;
+}
+
+.slider {
+  width: 100%;
+  height: 8px;
+  background: #27ae60;
+  border-radius: 10px;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background: #27ae60;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+}
+
+.slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  background: #27ae60;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+}
+
+.slider-marks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #718096;
+  margin-top: 5px;
+}
+
+/* Generate Button */
+.generate-button {
+  width: 100%;
+  padding: 16px;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.generate-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.generate-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Error Message */
+.error-message {
+  margin-top: 20px;
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  border: 1px solid #f87171;
+  color: #991b1b;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+/* Loading Progress */
+.loading-progress {
+  margin-top: 20px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #27ae60;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.loading-text {
+  text-align: center;
+  color: #4a5568;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+
+/* Review Result */
+.review-result {
+  margin-top: 40px;
+}
+
+.review-header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.review-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a202c;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.action-button {
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.copy-button {
+  background: #f7fafc;
+  border: 2px solid #e2e8f0;
+  color: #4a5568;
+}
+
+.copy-button:hover {
+  background: #e2e8f0;
+}
+
+.download-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.download-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: #5b21b6;
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #667eea;
+}
+
+/* Review Content */
+.review-content {
+  background: white;
+  border: 2px solid #ddd6fe;
+  border-radius: 12px;
+  padding: 30px;
+  line-height: 1.8;
+  color: #2d3748;
+}
+
+/* Citations */
+.citations-section {
+  margin-top: 30px;
+  background: #f7fafc;
+  border-radius: 12px;
+  padding: 25px;
+}
+
+.citations-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.citations-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.citation-item {
+  font-size: 0.9rem;
+  border-left: 3px solid #667eea;
+  padding-left: 15px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  color: #4a5568;
+  line-height: 1.6;
+}
+
+.citation-link {
+  color: #667eea;
+  text-decoration: none;
+  margin-left: 5px;
+}
+
+.citation-link:hover {
+  text-decoration: underline;
+}
+
+/* Sidebar */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.sidebar-panel {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Example Topics */
+.example-button {
+  width: 100%;
+  text-align: left;
+  padding: 12px 15px;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 10px;
+  font-family: 'Quicksand', sans-serif;
+  color: #374151;
+}
+
+.example-button:hover {
+    background: linear-gradient(90deg, #2ecc71, #3498db);
+  color: white;
+  border-color: #667eea;
+  transform: translateX(5px);
+}
+
+/* Recent Reviews */
+.recent-item {
+  border-left: 4px solid #667eea;
+  padding-left: 15px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.recent-topic {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #2d3748;
+  margin-bottom: 5px;
+}
+
+.recent-meta {
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+.no-reviews {
+  color: #a0aec0;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Info Box */
+.info-box {
+    background: linear-gradient(90deg, #2ecc71, #3498db);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #c7d2fe;
+}
+
+.info-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e40af;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.info-list li {
+  font-size: 0.85rem;
+  color: #1e3a8a;
+  padding: 5px 0;
+  padding-left: 20px;
+  position: relative;
+}
+
+.info-list li:before {
+  content: '•';
+  position: absolute;
+  left: 5px;
+  color: #667eea;
+  font-weight: bold;
+}
+
+/* Scrollbar */
+.citations-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.citations-list::-webkit-scrollbar-track {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+.citations-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.citations-list::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .review-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    order: -1;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .review-container {
+    padding: 20px 15px;
+  }
+
+  .review-header {
+    padding: 25px 20px;
+  }
+
+  .review-header h1 {
+    font-size: 1.8rem;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .main-panel, .sidebar-panel {
+    padding: 20px;
+  }
+
+  .review-header-actions {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .action-buttons {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .action-button {
+    width: 100%;
+  }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-6xl mx-auto">
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg shadow-lg p-8 text-white mb-8">
-            <h1 class="text-3xl font-bold mb-2">📚 Literature Review Generator</h1>
-            <p class="text-purple-100">Synthesize comprehensive reviews from NASA space biology research</p>
+<div class="review-container mt-5" style="margin-top: 50px;">
+  <!-- Header -->
+  <div class="review-header">
+    <h1>
+      <i class="fas fa-book-open"></i>
+      Literature Review Generator
+    </h1>
+    <p>Generate comprehensive reviews from NASA space biology research</p>
+  </div>
+
+  <div class="review-grid" x-data="{
+    topic: '',
+    maxArticles: 20,
+    loading: false,
+    review: null,
+    error: null,
+
+    async generateReview() {
+      if (!this.topic || !this.topic.trim() || this.loading) return;
+
+      this.loading = true;
+      this.error = null;
+      this.review = null;
+
+      try {
+        const response = await fetch('{% url 'core:generate_literature_review' %}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: JSON.stringify({
+            topic: this.topic,
+            max_articles: this.maxArticles
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          this.review = data.review;
+          this.$nextTick(() => {
+            document.getElementById('review-result')?.scrollIntoView({behavior: 'smooth'});
+          });
+        } else {
+          this.error = data.error;
+        }
+      } catch (error) {
+        this.error = 'Network error: ' + error.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    copyToClipboard() {
+      navigator.clipboard.writeText(this.review.full_review);
+      alert('✅ Review copied to clipboard!');
+    },
+
+    downloadReview() {
+      const element = document.createElement('a');
+      const file = new Blob([this.review.full_review], {type: 'text/markdown'});
+      element.href = URL.createObjectURL(file);
+      element.download = `literature_review_${this.topic.replace(/\s+/g, '_')}.md`;
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    },
+
+    setTopic(topic) {
+      this.topic = topic || '';
+    }
+  }">
+    <!-- Main Panel -->
+    <div class="main-panel">
+      <h2 class="panel-title">Generate New Review</h2>
+
+      <!-- Topic Input -->
+      <div class="form-group">
+        <label class="form-label">Research Topic</label>
+        <input
+          x-model="topic"
+          type="text"
+          placeholder="e.g.: Effects of microgravity on bone density"
+          class="form-input"
+          @keydown.enter="generateReview"
+        >
+      </div>
+
+      <!-- Max Articles Slider -->
+      <div class="slider-container">
+        <div class="slider-label">
+          <span>Number of Articles</span>
+          <span class="slider-value" x-text="maxArticles"></span>
+        </div>
+        <input
+          x-model="maxArticles"
+          type="range"
+          min="5"
+          max="50"
+          step="5"
+          class="slider"
+        >
+        <div class="slider-marks">
+          <span>5 (Fast)</span>
+          <span>50 (Complete)</span>
+        </div>
+      </div>
+
+      <!-- Generate Button -->
+      <button
+        @click="generateReview"
+        :disabled="!topic || !topic.trim() || loading"
+        class="generate-button"
+      >
+        <span x-show="!loading">
+          <i class="fas fa-rocket"></i> Generate Literature Review
+        </span>
+        <span x-show="loading" x-cloak>
+          <i class="fas fa-spinner fa-spin"></i> Generating review...
+        </span>
+      </button>
+
+      <!-- Error Message -->
+      <div x-show="error" class="error-message" x-cloak>
+        <strong>Error:</strong> <span x-text="error"></span>
+      </div>
+
+      <!-- Loading Progress -->
+      <div x-show="loading" class="loading-progress" x-cloak>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 100%"></div>
+        </div>
+        <p class="loading-text">
+          Analyzing articles and generating complete review...
+        </p>
+      </div>
+
+      <!-- Review Result -->
+      <div id="review-result" x-show="review" class="review-result" x-cloak>
+        <div class="review-header-actions">
+          <h3 class="review-title">
+            <i class="fas fa-file-alt"></i>
+            Generated Review
+          </h3>
+          <div class="action-buttons">
+            <button @click="copyToClipboard" class="action-button copy-button">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+            <button @click="downloadReview" class="action-button download-button">
+              <i class="fas fa-download"></i> Download
+            </button>
+          </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Column: Generation Form -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-lg shadow-lg p-6" x-data="{
-                    topic: '',
-                    maxArticles: 20,
-                    loading: false,
-                    review: null,
-                    error: null,
-
-                    async generateReview() {
-                        if (!this.topic.trim() || this.loading) return;
-
-                        this.loading = true;
-                        this.error = null;
-                        this.review = null;
-
-                        try {
-                            const response = await fetch('{% url 'core:generate_literature_review' %}', {
-                                method: 'POST',
-                                headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({
-                                    topic: this.topic,
-                                    max_articles: this.maxArticles
-                                })
-                            });
-
-                            const data = await response.json();
-
-                            if (data.success) {
-                                this.review = data.review;
-                                // Scroll to review
-                                this.$nextTick(() => {
-                                    document.getElementById('review-result').scrollIntoView({behavior: 'smooth'});
-                                });
-                            } else {
-                                this.error = data.error;
-                            }
-                        } catch (error) {
-                            this.error = 'Network error: ' + error.message;
-                        } finally {
-                            this.loading = false;
-                        }
-                    },
-
-                    copyToClipboard() {
-                        navigator.clipboard.writeText(this.review.full_review);
-                        alert('Review copied to clipboard!');
-                    },
-
-                    downloadReview() {
-                        const element = document.createElement('a');
-                        const file = new Blob([this.review.full_review], {type: 'text/markdown'});
-                        element.href = URL.createObjectURL(file);
-                        element.download = `literature_review_${this.topic.replace(/\s+/g, '_')}.md`;
-                        document.body.appendChild(element);
-                        element.click();
-                        document.body.removeChild(element);
-                    }
-                }">
-                    <h2 class="text-xl font-bold mb-4">Generate New Review</h2>
-
-                    <!-- Topic Input -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-semibold mb-2">Research Topic</label>
-                        <input
-                            x-model="topic"
-                            type="text"
-                            placeholder="e.g., Microgravity effects on bone density"
-                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-500"
-                            @keydown.enter="generateReview"
-                        >
-                    </div>
-
-                    <!-- Max Articles Slider -->
-                    <div class="mb-6">
-                        <label class="block text-sm font-semibold mb-2">
-                            Number of Articles: <span x-text="maxArticles" class="text-purple-600"></span>
-                        </label>
-                        <input
-                            x-model="maxArticles"
-                            type="range"
-                            min="5"
-                            max="50"
-                            step="5"
-                            class="w-full"
-                        >
-                        <div class="flex justify-between text-xs text-gray-500 mt-1">
-                            <span>5 (Quick)</span>
-                            <span>50 (Comprehensive)</span>
-                        </div>
-                    </div>
-
-                    <!-- Generate Button -->
-                    <button
-                        @click="generateReview"
-                        :disabled="!topic.trim() || loading"
-                        class="w-full bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        <span x-show="!loading">🚀 Generate Literature Review</span>
-                        <span x-show="loading">⏳ Generating Review...</span>
-                    </button>
-
-                    <!-- Error Message -->
-                    <div x-show="error" class="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-                        <strong>Error:</strong> <span x-text="error"></span>
-                    </div>
-
-                    <!-- Loading Progress -->
-                    <div x-show="loading" class="mt-4">
-                        <div class="bg-gray-200 rounded-full h-2 overflow-hidden">
-                            <div class="bg-purple-600 h-full animate-pulse" style="width: 100%"></div>
-                        </div>
-                        <p class="text-sm text-gray-600 mt-2 text-center">
-                            Analyzing articles and generating comprehensive review...
-                        </p>
-                    </div>
-
-                    <!-- Review Result -->
-                    <div id="review-result" x-show="review" class="mt-8">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-bold">📖 Generated Review</h3>
-                            <div class="space-x-2">
-                                <button
-                                    @click="copyToClipboard"
-                                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm"
-                                >
-                                    📋 Copy
-                                </button>
-                                <button
-                                    @click="downloadReview"
-                                    class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-sm"
-                                >
-                                    ⬇️ Download
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Review Stats -->
-                        <div class="bg-purple-50 rounded-lg p-4 mb-4 grid grid-cols-2 gap-4">
-                            <div>
-                                <p class="text-sm text-gray-600">Articles Analyzed</p>
-                                <p class="text-2xl font-bold text-purple-600" x-text="review.articles_count"></p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-600">Generation Time</p>
-                                <p class="text-2xl font-bold text-purple-600">
-                                    <span x-text="review.generation_time"></span>s
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Review Content -->
-                        <div class="prose max-w-none bg-white border-2 border-purple-200 rounded-lg p-6">
-                            <div x-html="marked.parse(review.full_review)"></div>
-                        </div>
-
-                        <!-- Citations -->
-                        <div class="mt-6 bg-gray-50 rounded-lg p-6">
-                            <h4 class="font-bold mb-3">📚 References (<span x-text="review.citations.length"></span>)</h4>
-                            <div class="space-y-2 max-h-60 overflow-y-auto">
-                                <template x-for="(citation, index) in review.citations" :key="index">
-                                    <div class="text-sm border-l-2 border-purple-400 pl-3 py-1">
-                                        <span x-text="citation.authors"></span> (<span x-text="citation.year"></span>).
-                                        <em x-text="citation.title"></em>
-                                        <a :href="citation.url" target="_blank" class="text-purple-600 hover:underline ml-1">
-                                            [PMC: <span x-text="citation.pmc_id"></span>]
-                                        </a>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column: Recent Reviews & Examples -->
-            <div class="space-y-6">
-                <!-- Example Topics -->
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h3 class="font-bold mb-3">💡 Example Topics</h3>
-                    <div class="space-y-2">
-                        <button class="w-full text-left px-3 py-2 bg-purple-50 hover:bg-purple-100 rounded text-sm">
-                            Microgravity effects on bone density
-                        </button>
-                        <button class="w-full text-left px-3 py-2 bg-purple-50 hover:bg-purple-100 rounded text-sm">
-                            Muscle atrophy in long-duration spaceflight
-                        </button>
-                        <button class="w-full text-left px-3 py-2 bg-purple-50 hover:bg-purple-100 rounded text-sm">
-                            Space radiation and DNA damage
-                        </button>
-                        <button class="w-full text-left px-3 py-2 bg-purple-50 hover:bg-purple-100 rounded text-sm">
-                            Cardiovascular changes in microgravity
-                        </button>
-                        <button class="w-full text-left px-3 py-2 bg-purple-50 hover:bg-purple-100 rounded text-sm">
-                            Plant growth in space environment
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Recent Reviews -->
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h3 class="font-bold mb-3">📝 Recent Reviews</h3>
-                    {% if recent_reviews %}
-                        <div class="space-y-3">
-                            {% for review in recent_reviews %}
-                            <div class="border-l-4 border-purple-400 pl-3 py-2">
-                                <p class="font-semibold text-sm">{{ review.topic|truncatewords:10 }}</p>
-                                <p class="text-xs text-gray-500">
-                                    {{ review.articles_count }} articles • {{ review.created_at|timesince }} ago
-                                </p>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <p class="text-gray-500 text-sm">No reviews generated yet</p>
-                    {% endif %}
-                </div>
-
-                <!-- Info -->
-                <div class="bg-indigo-50 rounded-lg p-6">
-                    <h3 class="font-bold mb-2">ℹ️ How it works</h3>
-                    <ul class="text-sm text-gray-700 space-y-1">
-                        <li>• Finds relevant NASA articles</li>
-                        <li>• Extracts key findings</li>
-                        <li>• Synthesizes research</li>
-                        <li>• Generates structured review</li>
-                        <li>• Includes citations</li>
-                    </ul>
-                </div>
-            </div>
+        <!-- Review Stats -->
+        <div class="stats-grid">
+          <div class="stat-item">
+            <p class="stat-label">Articles Analyzed</p>
+            <p class="stat-value" x-text="parseInt(review.articles_count) || 0"></p>
+          </div>
+          <div class="stat-item">
+            <p class="stat-label">Generation Time</p>
+            <p class="stat-value">
+              <span x-text="parseFloat(review.generation_time) || 0"></span>s
+            </p>
+          </div>
         </div>
+
+        <!-- Review Content -->
+        <div class="review-content">
+          <div x-html="marked.parse(review.full_review)"></div>
+        </div>
+
+        <!-- Citations -->
+        <div class="citations-section">
+          <h4 class="citations-title">
+            <i class="fas fa-quote-right"></i>
+            References (<span x-text="Array.isArray(review.citations) ? review.citations.length : 0"></span>)
+          </h4>
+          <div class="citations-list">
+            <template x-for="(citation, index) in review.citations" :key="index">
+              <div class="citation-item">
+                <span x-text="citation.authors"></span> (<span x-text="citation.year"></span>).
+                <em x-text="citation.title"></em>
+                <a :href="citation.url" target="_blank" class="citation-link" rel="noopener">
+                  [PMC: <span x-text="citation.pmc_id"></span>]
+                </a>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Example Topics -->
+      <div class="sidebar-panel">
+        <h3 class="sidebar-title">
+          <i class="fas fa-lightbulb"></i>
+          Example Topics
+        </h3>
+        <button @click="setTopic('Effects of microgravity on bone density')" class="example-button">
+          Effects of microgravity on bone density
+        </button>
+        <button @click="setTopic('Muscle atrophy during long-duration space flights')" class="example-button">
+          Muscle atrophy during space flights
+        </button>
+        <button @click="setTopic('Space radiation and DNA damage')" class="example-button">
+          Space radiation and DNA damage
+        </button>
+        <button @click="setTopic('Cardiovascular changes in microgravity')" class="example-button">
+          Cardiovascular changes
+        </button>
+        <button @click="setTopic('Plant growth in space environment')" class="example-button">
+          Plant growth in space
+        </button>
+      </div>
+
+      <!-- Recent Reviews -->
+      <div class="sidebar-panel">
+        <h3 class="sidebar-title">
+          <i class="fas fa-history"></i>
+          Recent Reviews
+        </h3>
+        {% if recent_reviews %}
+          {% for review in recent_reviews %}
+          <div class="recent-item">
+            <p class="recent-topic">{{ review.topic|truncatewords:10 }}</p>
+            <p class="recent-meta">
+              {{ review.articles_count }} articles • {{ review.created_at|timesince }}
+            </p>
+          </div>
+          {% endfor %}
+        {% else %}
+          <p class="no-reviews">No reviews generated yet</p>
+        {% endif %}
+      </div>
+
+      <!-- Info -->
+      <div class="sidebar-panel info-box">
+        <h3 class="info-title">
+          <i class="fas fa-info-circle"></i>
+          How it works
+        </h3>
+        <ul class="info-list">
+          <li>Finds relevant NASA articles</li>
+          <li>Extracts key findings</li>
+          <li>Synthesizes research</li>
+          <li>Generates structured review</li>
+          <li>Includes citations</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Marked.js for Markdown rendering -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/animation.js' %}"></script>
 {% endblock %}

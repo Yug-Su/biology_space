@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article - Biology Space</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/SplitText.min.js"></script>
+    <script src="js/animation.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #1a73e8;
+      --secondary-color: #5f6368;
+      --text-color: #202124;
+      --light-gray: #f8f9fa;
+      --border-color: #dadce0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      color: var(--text-color);
+      background-color: #fff;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Header */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 2rem;
+      height: 70px;
+      background: rgba(255, 255, 255, 0.95) !important;
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border-bottom: none !important;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 24px;
+      height: 18px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 100%;
+      height: 2px;
+      background-color: #2c3e50 !important;
+      transition: all 0.3s ease;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: #2c3e50 !important;
+      font-weight: 700 !important;
+      font-size: 1.25rem !important;
+    }
+
+    .logo img {
+      height: 36px;
+      width: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: #2c3e50 !important; /* Couleur de texte noire forcée */
+      text-decoration: none !important;
+      font-weight: 500 !important;
+      font-size: 0.95rem !important;
+      transition: all 0.3s ease !important;
+      background: none !important;
+      padding: 8px 15px !important;
+      border-radius: 20px !important;
+    }
+    
+    /* Style spécifique pour le bouton Inscription */
+    .nav-links a:last-child {
+      background: linear-gradient(90deg, #2ecc71, #3498db) !important;
+      color: white !important;
+      padding: 8px 20px !important;
+      border-top-left-radius: 0 !important;
+      border-bottom-left-radius: 0 !important;
+      border-top-right-radius: 20px !important;
+      border-bottom-right-radius: 20px !important;
+      text-decoration: none !important;
+      font-weight: 500 !important;
+      font-size: 0.95rem !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      display: inline-block !important;
+      position: relative !important;
+      overflow: hidden !important;
+      z-index: 1 !important;
+      border: none !important;
+      cursor: pointer !important;
+      text-align: center !important;
+      text-transform: none !important;
+      -webkit-appearance: none !important;
+      -moz-appearance: none !important;
+      appearance: none !important;
+      clip-path: none !important; /* Suppression du clip-path pour les coins droits */
+    }
+    
+    .nav-links a:last-child:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4) !important;
+      background: linear-gradient(90deg, #27ae60, #2980b9) !important;
+    }
+    
+    .nav-links a:last-child:active {
+      transform: translateY(0) !important;
+      box-shadow: 0 2px 10px rgba(52, 152, 219, 0.3) !important;
+    }
+
+    .nav-link:hover {
+      color: #1a73e8;
+    }
+    
+    /* Style spécifique pour le bouton de connexion mobile */
+    .mobile-login-btn {
+      display: none;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.2s;
+    }
+    
+    .mobile-login-btn:hover {
+      background-color: #1557b0;
+    }
+
+    @media (max-width: 1024px) {
+      .hamburger {
+        display: flex;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .mobile-login-btn {
+        display: block;
+      }
+    }
+
+    /* Article Header */
+    .article-header {
+      margin: 40px 0;
+    }
+
+    .article-tag {
+      display: inline-block;
+      background-color: #e8f0fe;
+      color: var(--primary-color);
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+
+    .article-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 16px;
+      color: var(--text-color);
+    }
+
+    .article-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: var(--secondary-color);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+
+    .author-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .article-image {
+      width: 100%;
+      max-height: 500px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin: 32px 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Article Content */
+    .article-content {
+      max-width: 720px;
+      margin: 0 auto;
+      font-size: 1.1rem;
+      line-height: 1.8;
+      color: var(--text-color);
+    }
+
+    .article-content p {
+      margin-bottom: 1.5em;
+      color: #3c4043;
+    }
+
+    .article-content h2 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin: 2em 0 1em;
+      color: var(--text-color);
+    }
+
+    .article-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 2em 0;
+    }
+
+    /* Author Section */
+    .author-section {
+      max-width: 720px;
+      margin: 64px auto;
+      padding: 24px;
+      background-color: var(--light-gray);
+      border-radius: 8px;
+      display: flex;
+      gap: 20px;
+    }
+
+    .author-avatar-lg {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+</style>
+    <script>
+    // Gestion des modales
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fonctions utilitaires
+        function openModal(modal) {
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal(modal) {
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+        
+        // Initialisation des éléments de la modale
+        const initModals = function() {
+            // Éléments de la modale d'inscription
+            const inscriptionModal = document.getElementById('inscriptionModal');
+            const closeInscriptionBtn = inscriptionModal ? inscriptionModal.querySelector('.close-modal') : null;
+            const inscriptionForm = document.getElementById('inscriptionForm');
+            
+            // Éléments de la modale de connexion
+            const loginModal = document.getElementById('loginModal');
+            const closeLoginBtn = loginModal ? loginModal.querySelector('.close-modal') : null;
+            const loginForm = document.getElementById('loginForm');
+            
+            // Liens de navigation entre les modales
+            const loginLink = document.getElementById('loginLink');
+            const inscriptionLink = document.getElementById('inscriptionLink');
+            
+            // Fonction pour fermer toutes les modales
+            const closeAllModals = function() {
+                if (inscriptionModal) closeModal(inscriptionModal);
+                if (loginModal) closeModal(loginModal);
+            };
+
+            // Gestion des clics sur les liens de navigation dans la barre de navigation
+            document.querySelectorAll('.nav-links a.nav-link').forEach(link => {
+                if (link.textContent.trim() === 'Inscription' && inscriptionModal) {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        closeAllModals();
+                        openModal(inscriptionModal);
+                    });
+                } else if (link.textContent.trim() === 'Connexion' && loginModal) {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        closeAllModals();
+                        openModal(loginModal);
+                    });
+                }
+            });
+
+            // Gestion du bouton mobile de connexion
+            const mobileLoginBtn = document.querySelector('.mobile-login-btn');
+            if (mobileLoginBtn && loginModal) {
+                mobileLoginBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    closeAllModals();
+                    openModal(loginModal);
+                });
+            }
+
+            // Fermeture des modales avec les boutons de fermeture
+            if (closeInscriptionBtn) {
+                closeInscriptionBtn.addEventListener('click', () => closeModal(inscriptionModal));
+            }
+            if (closeLoginBtn) {
+                closeLoginBtn.addEventListener('click', () => closeModal(loginModal));
+            }
+
+            // Fermeture des modales en cliquant en dehors
+            window.addEventListener('click', function(event) {
+                if (inscriptionModal && event.target === inscriptionModal) {
+                    closeModal(inscriptionModal);
+                } else if (loginModal && event.target === loginModal) {
+                    closeModal(loginModal);
+                }
+            });
+
+            // Gestion du formulaire d'inscription
+            if (inscriptionForm) {
+                inscriptionForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const password = document.getElementById('password')?.value;
+                    const confirmPassword = document.getElementById('confirm-password')?.value;
+                    
+                    if (password && password !== confirmPassword) {
+                        alert('Les mots de passe ne correspondent pas');
+                        return;
+                    }
+                    
+                    // Simulation d'inscription réussie
+                    alert('Inscription réussie !');
+                    closeModal(inscriptionModal);
+                    if (inscriptionForm.reset) inscriptionForm.reset();
+                });
+            }
+            
+            // Gestion du formulaire de connexion
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    // Simulation de connexion réussie
+                    alert('Connexion réussie !');
+                    closeModal(loginModal);
+                    if (loginForm.reset) loginForm.reset();
+                });
+            }
+
+            // Navigation entre les modales
+            if (loginLink) {
+                loginLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    closeAllModals();
+                    if (loginModal) openModal(loginModal);
+                });
+            }
+            
+            if (inscriptionLink) {
+                inscriptionLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    closeAllModals();
+                    if (inscriptionModal) openModal(inscriptionModal);
+                });
+            }
+        };
+
+        // Initialisation des modales
+        initModals();
+    });
+  </script>
+
+  <!-- Barre de navigation -->
+  <header class="navbar">
+    <div class="header-left">
+      <button class="hamburger" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="logo">
+        <img src="images/biospace.png" alt="Biology Space Logo">
+        <span>Biology Space</span>
+      </div>
+    </div>
+    
+    <!-- Bouton de connexion visible uniquement sur mobile -->
+    <a href="#" class="mobile-login-btn">Connexion</a>
+
+    <nav class="nav-links">
+      <a href="#" class="nav-link">Articles</a>
+      <a href="chat.html" class="nav-link">Chat</a>
+      <a href="#" class="nav-link">Connexion</a>
+      <a href="#" class="nav-link">Inscription</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <article>
+      <header class="article-header">
+        <span class="article-tag">Biologie Moléculaire</span>
+        <h1 class="article-title">La Révolution CRISPR-Cas9 : Éditer le Génome Humain</h1>
+        <div class="article-meta">
+          <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Dr. Marie Laurent" class="author-avatar">
+          <div>
+            <div>Par <strong>Dr. Marie Laurent</strong></div>
+            <div>Publié le 5 octobre 2024 • 12 min de lecture</div>
+          </div>
+        </div>
+      </header>
+
+      <img src="https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Système CRISPR-Cas9" class="article-image">
+      
+      <div class="article-content">
+        <p>La technologie CRISPR-Cas9 a révolutionné le domaine de la génétique en permettant des modifications précises du génome. Découverte initialement comme un mécanisme de défense bactérien, cette technique est aujourd'hui utilisée dans des laboratoires du monde entier pour la recherche fondamentale et le développement de thérapies géniques.</p>
+        
+        <h2>1. Les Origines de CRISPR</h2>
+        <p>Découvert en 1987 par des chercheurs japonais, le système CRISPR (Clustered Regularly Interspaced Short Palindromic Repeats) était initialement considéré comme une curiosité génétique. Ce n'est qu'en 2007 que son rôle dans l'immunité bactérienne a été établi, ouvrant la voie à son utilisation en ingénierie génétique.</p>
+        
+        <img src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Microscopie ADN" class="article-image">
+        
+        <h2>2. Comment Fonctionne CRISPR-Cas9 ?</h2>
+        <p>Le système se compose de deux éléments clés :</p>
+        <ul>
+          <li><strong>L'ARN guide (gRNA)</strong> : Une séquence d'ARN conçue pour cibler une séquence spécifique d'ADN</li>
+          <li><strong>La protéine Cas9</strong> : Une enzyme qui coupe l'ADN à l'emplacement ciblé</li>
+        </ul>
+        
+        <p>Une fois que Cas9 coupe l'ADN, la cellule tente de réparer cette cassure. Les scientifiques peuvent exploiter ce mécanisme pour :</p>
+        <ul>
+          <li>Désactiver des gènes spécifiques</li>
+          <li>Insérer de nouvelles séquences génétiques</li>
+          <li>Corriger des mutations génétiques</li>
+        </ul>
+
+        <h2>3. Applications Médicales Révolutionnaires</h2>
+        <p>CRISPR ouvre des perspectives sans précédent en médecine :</p>
+        
+        <h3>3.1. Traitement des Maladies Génétiques</h3>
+        <p>Des essais cliniques sont en cours pour traiter des maladies comme la drépanocytose, la bêta-thalassémie et la rétinite pigmentaire. En 2020, la première utilisation de CRISPR pour traiter la drépanocytose a montré des résultats prometteurs.</p>
+        
+        <img src="https://images.unsplash.com/photo-1579154204601-01588f351e67?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Recherche médicale" class="article-image">
+        
+        <h3>3.2. Immunothérapie contre le Cancer</h3>
+        <p>Des chercheurs utilisent CRISPR pour modifier génétiquement les cellules immunitaires des patients afin de mieux cibler et détruire les cellules cancéreuses. Cette approche, connue sous le nom de thérapie CAR-T, a montré des résultats prometteurs dans les leucémies réfractaires.</p>
+        
+        <h3>3.3. Lutte contre les Maladies Infectieuses</h3>
+        <p>CRISPR est utilisé pour développer des tests de diagnostic rapides et des traitements contre des virus comme le VIH et plus récemment le SARS-CoV-2, responsable de la COVID-19.</p>
+        
+        <h2>4. Défis et Questions Éthiques</h2>
+        <p>Malgré son potentiel, CRISPR soulève d'importantes questions :</p>
+        <ul>
+          <li><strong>Sécurité</strong> : Risques d'effets hors-cible (off-target effects)</li>
+          <li><strong>Édition germinale</strong> : Modifications héréditaires du génome humain</li>
+          <li><strong>Équité d'accès</strong> : Disparités potentielles dans l'accès aux thérapies géniques</li>
+          <li><strong>Bioéthique</strong> : Questions sur l'utilisation pour l'amélioration génétique (designer babies)</li>
+        </ul>
+        
+        <img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Recherche en laboratoire" class="article-image">
+        
+        <h2>5. L'Avenir de CRISPR</h2>
+        <p>Les développements récents incluent :</p>
+        <ul>
+          <li><strong>Base Editing</strong> : Modification précise d'une seule base d'ADN</li>
+          <li><strong>Prime Editing</strong> : Version plus précise avec moins d'effets hors-cible</li>
+          <li><strong>CRISPR-Cas12/13</strong> : Nouvelles variantes pour des applications spécifiques</li>
+        </ul>
+        
+        <p>Alors que la recherche progresse, la communauté scientifique appelle à un dialogue mondial pour établir des lignes directrices éthiques tout en favorisant l'innovation.</p>
+      </div>
+
+      <!-- Auteur -->
+      <div class="author-section">
+        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Dr. Marie Laurent" class="author-avatar-lg">
+        <div class="author-info">
+          <h3>À propos de l'auteur</h3>
+          <p class="author-bio">
+            Le Dr. Marie Laurent est une généticienne moléculaire de renom, spécialisée en édition génomique. Professeure à l'Institut Pasteur de Paris, elle dirige une équipe de recherche sur les applications thérapeutiques de CRISPR. Lauréate du Prix L'Oréal-UNESCO pour les Femmes et la Science, elle a contribué à plus de 70 publications scientifiques et participe activement aux comités d'éthique en génomique.
+          </p>
+        </div>
+      </div>
+    </article>
+
+    <!-- Articles similaires -->
+    <section class="related-articles">
+      <h2 class="section-title">Articles similaires</h2>
+      <div class="articles-grid">
+        <article class="article-card">
+          <img src="https://images.unsplash.com/photo-1507413245164-616f0d9a1d8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Biologie cellulaire">
+          <div class="card-content">
+            <span class="card-category">Thérapie Génique</span>
+            <h3 class="card-title">L'avenir des traitements personnalisés</h3>
+            <div class="card-meta">
+              <span>10 min de lecture</span>
+              <span>•</span>
+              <span>2 oct. 2024</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="article-card">
+          <img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Génétique">
+          <div class="card-content">
+            <span class="card-category">Éthique</span>
+            <h3 class="card-title">Les enjeux éthiques de l'édition génomique</h3>
+            <div class="card-meta">
+              <span>14 min de lecture</span>
+              <span>•</span>
+              <span>25 sept. 2024</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="article-card">
+          <img src="https://images.unsplash.com/photo-1532187863485-ab8339506b1a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Neurosciences">
+          <div class="card-content">
+            <span class="card-category">Recherche</span>
+            <h3 class="card-title">CRISPR et maladies rares : espoirs et défis</h3>
+            <div class="card-meta">
+              <span>8 min de lecture</span>
+              <span>•</span>
+              <span>30 sept. 2024</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-section">
+        <h3>Biology Space</h3>
+        <p>Explorant les frontières de la biologie spatiale pour un avenir interstellaire.</p>
+        <div class="social-links">
+          <a href="#" class="social-icon" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-icon" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+          <a href="#" class="social-icon" aria-label="Github"><i class="fab fa-github"></i></a>
+          <a href="#" class="social-icon" aria-label="Youtube"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+      
+      <div class="footer-section">
+        <h4>Liens rapides</h4>
+        <ul>
+          <li><a href="index.html">Accueil</a></li>
+          <li><a href="articles.html">Articles</a></li>
+          <li><a href="chat.html">Chat IA</a></li>
+          <li><a href="about.html">À propos</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-section">
+        <h4>Catégories</h4>
+        <ul>
+          <li><a href="#">Biologie spatiale</a></li>
+          <li><a href="#">Recherche médicale</a></li>
+          <li><a href="#">Botanique spatiale</a></li>
+          <li><a href="#">Exobiologie</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-section">
+        <h4>Contact</h4>
+        <ul>
+          <li><i class="fas fa-envelope"></i> contact@biologyspace.com</li>
+          <li><i class="fas fa-phone"></i> +33 1 23 45 67 89</li>
+          <li><i class="fas fa-map-marker-alt"></i> Paris, France</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="copyright">
+      <p>&copy; 2024 Biology Space. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Ici, vous pouvez ajouter le code pour charger dynamiquement le contenu de l'article
+    document.addEventListener('DOMContentLoaded', function() {
+      // Exemple de récupération de l'ID de l'article depuis l'URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const articleId = urlParams.get('id');
+      
+      if (articleId) {
+        // Charger les données de l'article depuis une API ou un fichier JSON
+        // fetch(`/api/articles/${articleId}`)
+        //   .then(response => response.json())
+        //   .then(article => {
+        //     // Mise à jour du contenu de l'article
+        //     document.querySelector('.article-title').textContent = article.title;
+        //     document.querySelector('.article-content').innerHTML = article.content;
+        //     document.title = `${article.title} - Biology Space`;
+        //     
+        //     // Mise à jour des métadonnées
+        //     const meta = document.querySelector('.article-meta');
+        //     meta.querySelector('strong').textContent = article.author;
+        //     meta.querySelector('div').innerHTML = `Publié le ${article.date} • ${article.readingTime} min de lecture`;
+        //     
+        //     // Mise à jour de l'image
+        //     document.querySelector('.article-image').src = article.imageUrl;
+        //     document.querySelector('.article-image').alt = article.imageAlt;
+        //     
+        //     // Mise à jour de la section auteur
+        //     document.querySelector('.author-avatar-lg').src = article.authorAvatar;
+        //     document.querySelector('.author-avatar').src = article.authorAvatar;
+        //     document.querySelector('.author-bio').textContent = article.authorBio;
+        //   });
+      }
+    });
+  </script>
+</body>
+</html>

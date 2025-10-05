@@ -3,124 +3,772 @@
 {% block title %}Home - SpaceBio AI{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<div class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white">
-    <div class="container mx-auto px-4 py-20">
-        <div class="text-center max-w-4xl mx-auto">
-            <h1 class="text-5xl md:text-6xl font-bold mb-6">
-                🚀 Space Biology Intelligence Platform
-            </h1>
-            <p class="text-xl md:text-2xl mb-8 text-indigo-100">
-                AI-powered research assistant for {{ stats.total_articles }} NASA space biology publications
-            </p>
-
-            <!-- Search Bar -->
-            <form action="{% url 'core:search' %}" method="GET" class="mt-8">
-                <div class="flex max-w-2xl mx-auto">
-                    <input
-                        type="text"
-                        name="q"
-                        placeholder="Search space biology research..."
-                        class="flex-1 px-6 py-4 rounded-l-lg text-gray-900 text-lg focus:outline-none focus:ring-2 focus:ring-purple-300"
-                        required
-                    >
-                    <button
-                        type="submit"
-                        class="bg-indigo-600 hover:bg-indigo-700 px-8 py-4 rounded-r-lg font-semibold transition"
-                    >
-                        Search
-                    </button>
-                </div>
-                <div class="mt-4 flex justify-center space-x-4">
-                    <label class="inline-flex items-center text-white/90">
-                        <input type="radio" name="type" value="simple" checked class="mr-2">
-                        Simple Search
-                    </label>
-                    <label class="inline-flex items-center text-white/90">
-                        <input type="radio" name="type" value="semantic" class="mr-2">
-                        Semantic Search (AI)
-                    </label>
-                </div>
-            </form>
+<!-- Wrapper pour la section hero avec tous les effets 3D -->
+<div class="hero-wrapper">
+    <div class="search-hero">
+        <h1 class="animated-title">Space Biology</h1>
+        <p class="hero-subtitle">AI-powered research assistant for {{ stats.total_articles }} NASA space biology publications</p>
+        
+        <!-- Search Bar -->
+        <form action="{% url 'core:search' %}" method="GET" class="search-container">
+            <input 
+                type="text" 
+                name="q"
+                placeholder="Search space biology research..."
+                required
+            >
+            <button type="submit">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </form>
+        
+        <div class="search-options">
+            <label class="search-option-label">
+                <input type="radio" name="type" value="simple" checked>
+                <span>Simple Search</span>
+            </label>
+            <label class="search-option-label">
+                <input type="radio" name="type" value="semantic">
+                <span>Semantic Search (AI)</span>
+            </label>
         </div>
     </div>
-</div>
 
-<!-- Stats Section -->
-<div class="container mx-auto px-4 py-12">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white p-6 rounded-lg shadow-md text-center">
-            <div class="text-4xl font-bold text-indigo-600">{{ stats.total_articles }}</div>
-            <div class="text-gray-600 mt-2">Research Articles</div>
+    <!-- Éléments d'arrière-plan -->
+    <div class="stars"></div>
+    <div class="stars-highlights"></div>
+    <div class="planets"></div>
+    <div class="planets-2"></div>
+
+    <!-- Scène 3D avec planètes et personnage -->
+    <div class="scene">
+        <div class="sun"></div>
+        <div class="planet"></div>
+        <div class="planet-2"></div>
+        <div class="planet-3"></div>
+        <div class="planet-4"></div>
+        <div class="planet-6"></div>
+        <div class="planet-5">
+            <div class="structure-1"></div>
+            <div class="structure-2"></div>
+            <div class="structure-3"></div>
         </div>
-        <div class="bg-white p-6 rounded-lg shadow-md text-center">
-            <div class="text-4xl font-bold text-purple-600">{{ stats.total_embeddings }}</div>
-            <div class="text-gray-600 mt-2">AI Embeddings</div>
-        </div>
-        <div class="bg-white p-6 rounded-lg shadow-md text-center">
-            <div class="text-4xl font-bold text-pink-600">{{ stats.total_chats }}</div>
-            <div class="text-gray-600 mt-2">Chat Sessions</div>
-        </div>
-    </div>
-</div>
-
-<!-- Features Section -->
-<div class="container mx-auto px-4 py-12">
-    <h2 class="text-3xl font-bold text-center mb-12">Platform Features</h2>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <a href="{% url 'core:search' %}" class="group">
-            <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition">
-                <div class="text-4xl mb-4">🔍</div>
-                <h3 class="text-xl font-bold mb-3 group-hover:text-indigo-600 transition">Semantic Search</h3>
-                <p class="text-gray-600">
-                    AI-powered search finds relevant research based on meaning, not just keywords
-                </p>
-            </div>
-        </a>
-
-        <a href="{% url 'core:chat' %}" class="group">
-            <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition">
-                <div class="text-4xl mb-4">💬</div>
-                <h3 class="text-xl font-bold mb-3 group-hover:text-purple-600 transition">AI Chat Assistant</h3>
-                <p class="text-gray-600">
-                    Conversational AI trained on space biology to answer your research questions
-                </p>
-            </div>
-        </a>
-
-        <a href="{% url 'core:generate' %}" class="group">
-            <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition">
-                <div class="text-4xl mb-4">✍️</div>
-                <h3 class="text-xl font-bold mb-3 group-hover:text-pink-600 transition">Article Generator</h3>
-                <p class="text-gray-600">
-                    Generate comprehensive research articles, reviews, and protocols with AI
-                </p>
-            </div>
-        </a>
-    </div>
-</div>
-
-<!-- Recent Articles -->
-<div class="container mx-auto px-4 py-12">
-    <h2 class="text-3xl font-bold mb-8">Recent Articles</h2>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {% for article in recent_articles %}
-        <a href="{% url 'core:article_detail' article.id %}" class="group">
-            <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
-                <h3 class="font-semibold text-lg mb-2 group-hover:text-indigo-600 transition line-clamp-2">
-                    {{ article.title }}
-                </h3>
-                <div class="flex items-center justify-between text-sm text-gray-500 mt-4">
-                    <span>{{ article.views_count }} views</span>
-                    {% if article.publication_date %}
-                    <span>{{ article.publication_date|date:"Y" }}</span>
-                    {% endif %}
+        <div class="human">
+            <div class="neck"></div>
+            <div class="head"></div>
+            <div class="body">
+                <div class="shoulder"></div>
+                <div class="back"></div>
+                <div class="hip">
+                    <div class="center"></div>
                 </div>
             </div>
-        </a>
-        {% endfor %}
+            <div class="leg left">
+                <div class="knee"></div>
+                <div class="lower"></div>
+            </div>
+            <div class="leg right">
+                <div class="knee"></div>
+                <div class="lower"></div>
+            </div>
+            <div class="arm left">
+                <div class="hand"></div>
+            </div>
+            <div class="arm right">
+                <div class="hand"></div>
+            </div>
+        </div>
+        <div class="human shadow">
+            <div class="neck"></div>
+            <div class="head"></div>
+            <div class="body">
+                <div class="shoulder"></div>
+                <div class="back"></div>
+                <div class="hip">
+                    <div class="center"></div>
+                </div>
+            </div>
+            <div class="leg left">
+                <div class="knee"></div>
+                <div class="lower"></div>
+            </div>
+            <div class="leg right">
+                <div class="knee"></div>
+                <div class="lower"></div>
+            </div>
+            <div class="arm left">
+                <div class="hand"></div>
+            </div>
+            <div class="arm right">
+                <div class="hand"></div>
+            </div>
+        </div>
+        <div class="cuboid">
+            <div class="object">
+                <div class="body"></div>
+            </div>
+            <div class="top">
+                <div class="outline"></div>
+                <div class="outline"></div>
+                <div class="outline"></div>
+                <div class="outline"></div>
+            </div>
+            <div class="front"></div>
+            <div class="right"></div>
+        </div>
+    </div>
+
+    <!-- Effets visuels -->
+    <div class="highlight"></div>
+    <div class="color-filter"></div>
+
+    <!-- Filtres SVG -->
+    <svg class="filter" xmlns="http://www.w3.org/2000/svg">
+        <filter id="stars">
+            <feTurbulence baseFrequency="0.275" />
+            <feColorMatrix values="0 0 0 9 -5
+                                   0 0 0 9 -4
+                                   0 0 0 9 -5
+                                   0 0 0 0 1" />
+        </filter>
+        <filter id="stars-highlights">
+            <feTurbulence baseFrequency="0.675" />
+            <feColorMatrix values="0 0 0 9 -5
+                                   0 0 0 9 -4
+                                   0 0 0 9 -5
+                                   0 0 0 0 1" />
+        </filter>
+        <filter id="planet-structure">
+            <feTurbulence baseFrequency="0.195" />
+            <feColorMatrix values="0 0 0 1 -9
+                                   0 0 0 9 -1.5
+                                   0 0 0 2 -6
+                                   0 0 0 0 1" />
+        </filter>
+    </svg>
+</div>
+
+<!-- Bannière de statistiques -->
+<div class="stats-banner">
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+        <!-- Version desktop (grille) -->
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-content">
+                    <div class="stat-number" data-count="{{ stats.total_articles }}">0</div>
+                    <div class="stat-label">Research Articles</div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-content">
+                    <div class="stat-number" data-count="{{ stats.total_embeddings }}">0</div>
+                    <div class="stat-label">AI Embeddings</div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-content">
+                    <div class="stat-number" data-count="{{ stats.total_chats }}">0</div>
+                    <div class="stat-label">Chat Sessions</div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-content">
+                    <div class="stat-number" data-count="10000">0</div>
+                    <div class="stat-label">Researchers</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Version mobile (défilement) -->
+        <div class="stats-container">
+            <div class="stats-track">
+                <div class="stat-item">
+                    <div class="stat-content">
+                        <div class="stat-number" data-count="{{ stats.total_articles }}">0</div>
+                        <div class="stat-label">Research Articles</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-content">
+                        <div class="stat-number" data-count="{{ stats.total_embeddings }}">0</div>
+                        <div class="stat-label">AI Embeddings</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-content">
+                        <div class="stat-number" data-count="{{ stats.total_chats }}">0</div>
+                        <div class="stat-label">Chat Sessions</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-content">
+                        <div class="stat-number" data-count="10000">0</div>
+                        <div class="stat-label">Researchers</div>
+                    </div>
+                </div>
+                <!-- Duplication pour défilement fluide -->
+                <div class="stat-item">
+                    <div class="stat-content">
+                        <div class="stat-number" data-count="{{ stats.total_articles }}">0</div>
+                        <div class="stat-label">Research Articles</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-content">
+                        <div class="stat-number" data-count="{{ stats.total_embeddings }}">0</div>
+                        <div class="stat-label">AI Embeddings</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-content">
+                        <div class="stat-number" data-count="{{ stats.total_chats }}">0</div>
+                        <div class="stat-label">Chat Sessions</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-content">
+                        <div class="stat-number" data-count="10000">0</div>
+                        <div class="stat-label">Researchers</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<!-- Dans core/templates/core/home.html, remplacez la section des fonctionnalités par : -->
+
+<!-- Features Section with Interactive Grid -->
+<section class="features-showcase">
+    <div class="container">
+        <div class="section-header" data-aos="fade-up">
+            <h2 class="section-title">Powerful Research Tools</h2>
+            <p class="section-subtitle">Harness the power of AI for your space biology research</p>
+        </div>
+
+        <div class="features-grid">
+            <!-- Feature 1: Search -->
+            <a href="{% url 'core:search' %}" class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z"/>
+                    </svg>
+                </div>
+                <h3>Advanced Search</h3>
+                <p>Find relevant research papers using semantic search powered by AI</p>
+                <div class="feature-hover"></div>
+            </a>
+
+            <!-- Feature 2: AI Assistant -->
+            <a href="{% url 'core:chat' %}" class="feature-card" data-aos="fade-up" data-aos-delay="150">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M8 10H8.01M12 10H12.01M16 10H16.01M9 16H5C3.89543 16 3 15.1046 3 14V6C3 4.89543 3.89543 4 5 4H19C20.1046 4 21 4.89543 21 6V14C21 15.1046 20.1046 16 19 16H14L9 21V16Z"/>
+                    </svg>
+                </div>
+                <h3>AI Research Assistant</h3>
+                <p>Get instant answers and insights from research papers</p>
+                <div class="feature-hover"></div>
+            </a>
+
+            <!-- Feature 3: Literature Review -->
+            <a href="{% url 'core:literature_review' %}" class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M12 6.25278V19.2528M12 6.25278C10.8321 5.47686 9.24649 5 7.5 5C5.75351 5 4.16789 5.47686 3 6.25278V19.2528C4.16789 18.4769 5.75351 18 7.5 18C9.24649 18 10.8321 18.4769 12 19.2528M12 6.25278C13.1679 5.47686 14.7535 5 16.5 5C18.2465 5 19.8321 5.47686 21 6.25278V19.2528C19.8321 18.4769 18.2465 18 16.5 18C14.7535 18 13.1679 18.4769 12 19.2528"/>
+                    </svg>
+                </div>
+                <h3>Literature Review</h3>
+                <p>Automated review generation for your research topics</p>
+                <div class="feature-hover"></div>
+            </a>
+
+            <!-- Feature 4: Analytics -->
+            <a href="{% url 'core:analytics' %}" class="feature-card" data-aos="fade-up" data-aos-delay="250">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M7 20L20 20M7 14L12 14M12 14L12 4M12 14L20 4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h3>Research Analytics</h3>
+                <p>Visualize trends and patterns in space biology research</p>
+                <div class="feature-hover"></div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<style>
+/* Container Styles */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+/* Features Showcase */
+.features-showcase {
+    padding: 6rem 0;
+    background: linear-gradient(135deg, #f8faff 0%, #f0f4ff 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+}
+
+.features-showcase::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 300px;
+    background: linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+    z-index: 1;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin: 3rem auto 0;
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    width: 100%;
+    padding: 0 20px;
+    box-sizing: border-box;
+    justify-items: center;
+}
+
+.feature-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    text-decoration: none;
+    color: #2d3748;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+}
+
+.feature-card:hover::before {
+    transform: scaleX(1);
+}
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+    transform: rotate(5deg) scale(1.1);
+    background: linear-gradient(135deg, #667eea30 0%, #764ba230 100%);
+}
+
+.feature-icon svg {
+    width: 28px;
+    height: 28px;
+    color: #4f46e5;
+}
+
+.feature-card h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #1a202c;
+    position: relative;
+    z-index: 2;
+}
+
+.feature-card p {
+    color: #4a5568;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 2;
+    flex-grow: 1;
+}
+
+.feature-hover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 50%, rgba(102, 126, 234, 0.1) 0%, rgba(255,255,255,0) 60%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.feature-card:hover .feature-hover {
+    opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 0 15px;
+    }
+    
+    .feature-card {
+        padding: 2rem 1.5rem;
+        max-width: 100%;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+    }
+    
+    .section-subtitle {
+        font-size: 1.1rem;
+    }
+}
+</style>
+
+<script>
+// Add parallax effect to feature cards on mousemove
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.feature-card');
+    
+    cards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const angleX = (y - centerY) / 25;
+            const angleY = (centerX - x) / 25;
+            
+            card.style.transform = `perspective(1000px) rotateX(${angleX}deg) rotateY(${angleY}deg) translateY(-8px)`;
+            card.style.boxShadow = `${-angleY * 2}px ${angleX * 2}px 30px rgba(0, 0, 0, 0.1)`;
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'translateY(-8px) rotateX(0) rotateY(0)';
+            card.style.boxShadow = '0 15px 40px rgba(0, 0, 0, 0.08)';
+        });
+    });
+});
+</script>
+
+<!-- Recent Articles Section -->
+<section class="content-section" style="background: #f8f9fa;">
+    <div class="container">
+        <h2 class="section-title">Recent Research Articles</h2>
+        <p class="section-subtitle">Explore the latest publications in space biology</p>
+        
+        <div class="articles-grid">
+            {% for article in recent_articles %}
+            <a href="{% url 'core:article_detail' article.id %}" class="article-card">
+                <div class="article-image">
+                    <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="{{ article.title }}">
+                    <span class="article-category">Research</span>
+                </div>
+                <div class="article-content">
+                    <h3>{{ article.title }}</h3>
+                    <div class="article-meta">
+                        {% if article.publication_date %}
+                        <span class="article-date">{{ article.publication_date|date:"d M Y" }}</span>
+                        {% endif %}
+                        <span>{{ article.views_count }} views</span>
+                    </div>
+                    <span class="read-more">Read Article →</span>
+                </div>
+            </a>
+            {% empty %}
+            <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                <p style="color: #666; font-size: 1.1rem;">No articles available yet. Check back soon!</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if recent_articles %}
+        <div class="load-more-container">
+            <a href="{% url 'core:search' %}" class="load-more-btn">View All Articles</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<style>
+/* Content Section */
+.content-section {
+    padding: 5rem 0;
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+.content-section .container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 0 20px;
+    margin: 0 auto;
+}
+
+/* Section Header */
+.section-header {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 3rem;
+    padding: 0 20px;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #1a202c;
+}
+
+.section-subtitle {
+    font-size: 1.2rem;
+    color: #4a5568;
+    line-height: 1.6;
+}
+
+/* Features Section */
+.features-section {
+    padding: 80px 0;
+    background: #f8fafc;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+}
+
+.features-section .container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 0 20px;
+    margin: 0 auto;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    padding: 0 20px;
+}
+
+.feature-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gradient);
+    color: white;
+    font-size: 3.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-icon::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+    transform: rotate(30deg);
+    transition: transform 0.6s ease;
+}
+
+.feature-card:hover .feature-icon::after {
+    transform: rotate(0deg) translateY(0);
+}
+
+.feature-content {
+    padding: 30px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.feature-content h3 {
+    font-size: 1.5rem;
+    color: #1a202c;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.feature-content p {
+    color: #4a5568;
+    line-height: 1.6;
+    margin-bottom: 25px;
+    flex-grow: 1;
+}
+
+.feature-link {
+    display: inline-flex;
+    align-items: center;
+    color: #4f46e5;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.feature-link i {
+    margin-left: 8px;
+    transition: transform 0.3s ease;
+}
+
+.feature-link:hover {
+    color: #4338ca;
+}
+
+.feature-link:hover i {
+    transform: translateX(5px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .section-title {
+        font-size: 2rem;
+    }
+    
+    .section-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+// Animation des statistiques
+function animateStats() {
+    const statNumbers = document.querySelectorAll('.stat-number');
+    const speed = 100;
+    let allDone = true;
+    
+    statNumbers.forEach(statNumber => {
+        const target = parseInt(statNumber.getAttribute('data-count'));
+        let count = parseInt(statNumber.innerText) || 0;
+        
+        if (count < target) {
+            const increment = Math.max(1, Math.ceil((target - count) / speed));
+            const newCount = Math.min(count + increment, target);
+            statNumber.innerText = newCount === target ? newCount + '+' : newCount;
+            statNumber.classList.add('animate');
+            allDone = false;
+        }
+    });
+    
+    if (!allDone) {
+        requestAnimationFrame(animateStats);
+    } else {
+        statNumbers.forEach(statNumber => {
+            statNumber.classList.add('pulse');
+            setTimeout(() => statNumber.classList.remove('pulse'), 1000);
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize AOS
+    AOS.init({
+        duration: 800,
+        once: true,
+        easing: 'ease-out-quart'
+    });
+
+    // Détecter quand la bannière est dans le viewport
+    const statsBanner = document.querySelector('.stats-banner');
+    let animationStarted = false;
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !animationStarted) {
+                animationStarted = true;
+                animateStats();
+                statsBanner.classList.add('stats-visible');
+            }
+        });
+    }, { threshold: 0.3 });
+
+    if (statsBanner) {
+        observer.observe(statsBanner);
+        
+        statsBanner.addEventListener('mouseenter', () => {
+            statsBanner.classList.add('hovered');
+        });
+        
+        statsBanner.addEventListener('mouseleave', () => {
+            statsBanner.classList.remove('hovered');
+        });
+    }
+});
+</script>
 {% endblock %}

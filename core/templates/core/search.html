@@ -3,6 +3,7 @@
 {% block title %}Search - SpaceBio AI{% endblock %}
 
 {% block content %}
+<br><br><br>
 <div class="container mx-auto px-4 py-8" x-data="{
     viewerOpen: false,
     currentArticle: null,
@@ -59,6 +60,7 @@
         <form action="{% url 'core:search' %}" method="GET">
             <div class="flex max-w-4xl mx-auto">
                 <input
+                    style="color: black";
                     type="text"
                     name="q"
                     value="{{ query }}"
@@ -117,87 +119,87 @@
         </div>
 
         {% if results %}
-        <div class="space-y-6">
-            {% for result in results %}
-                {% if search_type == 'semantic' %}
-                    {# Semantic search returns (article, score) tuples #}
-                    {% with article=result.0 score=result.1 %}
-                    <div @click="openArticle({{ article.id }})" class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition border-l-4 border-indigo-500 cursor-pointer group">
-                        <div class="flex items-start justify-between">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <h3 class="text-xl font-semibold group-hover:text-indigo-600 transition">
-                                        {{ article.title }}
-                                    </h3>
-                                    <span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full font-semibold">
-                                        {{ score|floatformat:2 }} similarity
-                                    </span>
-                                    {% if article.content %}
-                                    <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-semibold">
-                                        ⭐ ENRICHED
-                                    </span>
-                                    {% endif %}
-                                </div>
-                                {% if article.abstract %}
-                                <p class="text-gray-600 line-clamp-3">
-                                    {{ article.abstract|truncatewords:50 }}
-                                </p>
+       <div class="space-y-6">
+    {% for result in results %}
+        {% if search_type == 'semantic' %}
+            {# Semantic search returns (article, score) tuples #}
+            {% with article=result.0 score=result.1 %}
+            <div @click="openArticle({{ article.id }})" class="bg-black text-white p-6 rounded-lg shadow-md hover:shadow-xl transition border-l-4 border-indigo-500 cursor-pointer group">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <h3 class="text-xl font-semibold text-white group-hover:text-indigo-400 transition">
+                                {{ article.title }}
+                            </h3>
+                            <span class="px-2 py-1 bg-indigo-900 text-indigo-200 text-xs rounded-full font-semibold">
+                                {{ score|floatformat:2 }} similarity
+                            </span>
+                            {% if article.content %}
+                            <span class="px-2 py-1 bg-green-900 text-green-200 text-xs rounded-full font-semibold">
+                                ⭐ ENRICHED
+                            </span>
+                            {% endif %}
+                        </div>
+                        {% if article.abstract %}
+                        <p class="text-gray-300 line-clamp-3">
+                            {{ article.abstract|truncatewords:50 }}
+                        </p>
+                        {% endif %}
+                        <div class="flex items-center justify-between mt-4">
+                            <div class="flex items-center space-x-4 text-sm text-gray-400">
+                                <span>📖 {{ article.views_count }} views</span>
+                                {% if article.publication_date %}
+                                <span>📅 {{ article.publication_date|date:"Y" }}</span>
                                 {% endif %}
-                                <div class="flex items-center justify-between mt-4">
-                                    <div class="flex items-center space-x-4 text-sm text-gray-500">
-                                        <span>📖 {{ article.views_count }} views</span>
-                                        {% if article.publication_date %}
-                                        <span>📅 {{ article.publication_date|date:"Y" }}</span>
-                                        {% endif %}
-                                    </div>
-                                    <button class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold transition">
-                                        View Article
-                                    </button>
-                                </div>
                             </div>
+                            <button class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold transition">
+                                View Article
+                            </button>
                         </div>
                     </div>
-                    {% endwith %}
-                {% else %}
-                    {# Simple search returns Article objects #}
-                    <div @click="openArticle({{ result.id }})" class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition cursor-pointer group">
-                        <div class="flex items-start justify-between">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <h3 class="text-xl font-semibold group-hover:text-indigo-600 transition">
-                                        {{ result.title }}
-                                    </h3>
-                                    {% if result.content %}
-                                    <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-semibold">
-                                        ⭐ ENRICHED
-                                    </span>
-                                    {% endif %}
-                                </div>
-                                {% if result.abstract %}
-                                <p class="text-gray-600 line-clamp-3">
-                                    {{ result.abstract|truncatewords:50 }}
-                                </p>
+                </div>
+            </div>
+            {% endwith %}
+        {% else %}
+            {# Simple search returns Article objects #}
+            <div @click="openArticle({{ result.id }})" class="bg-black text-white p-6 rounded-lg shadow-md hover:shadow-xl transition cursor-pointer group border-l-4 border-indigo-500">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <h3 class="text-xl font-semibold text-white group-hover:text-indigo-400 transition">
+                                {{ result.title }}
+                            </h3>
+                            {% if result.content %}
+                            <span class="px-2 py-1 bg-green-900 text-green-200 text-xs rounded-full font-semibold">
+                                ⭐ ENRICHED
+                            </span>
+                            {% endif %}
+                        </div>
+                        {% if result.abstract %}
+                        <p class="text-gray-300 line-clamp-3">
+                            {{ result.abstract|truncatewords:50 }}
+                        </p>
+                        {% endif %}
+                        <div class="flex items-center justify-between mt-4">
+                            <div class="flex items-center space-x-4 text-sm text-gray-400">
+                                <span>📖 {{ result.views_count }} views</span>
+                                {% if result.publication_date %}
+                                <span>📅 {{ result.publication_date|date:"Y" }}</span>
                                 {% endif %}
-                                <div class="flex items-center justify-between mt-4">
-                                    <div class="flex items-center space-x-4 text-sm text-gray-500">
-                                        <span>📖 {{ result.views_count }} views</span>
-                                        {% if result.publication_date %}
-                                        <span>📅 {{ result.publication_date|date:"Y" }}</span>
-                                        {% endif %}
-                                        {% if result.keywords %}
-                                        <span>🏷️ {{ result.keywords|length }} keywords</span>
-                                        {% endif %}
-                                    </div>
-                                    <button class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold transition">
-                                        View Article
-                                    </button>
-                                </div>
+                                {% if result.keywords %}
+                                <span>🏷️ {{ result.keywords|length }} keywords</span>
+                                {% endif %}
                             </div>
+                            <button class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold transition">
+                                View Article
+                            </button>
                         </div>
                     </div>
-                {% endif %}
-            {% endfor %}
-        </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
         {% endif %}
     </div>
     {% else %}

@@ -40,7 +40,6 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -90,6 +89,11 @@ DATABASES = {
     }
 }
 
+#static files
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',  
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -154,3 +158,4 @@ EMBEDDING_MODEL = env('EMBEDDING_MODEL', default='text-embedding-3-small')
 MAX_TOKENS_SUMMARY = env.int('MAX_TOKENS_SUMMARY', default=500)
 MAX_TOKENS_GENERATION = env.int('MAX_TOKENS_GENERATION', default=2000)
 TEMPERATURE = env.float('TEMPERATURE', default=0.7)
+

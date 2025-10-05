@@ -1,0 +1,542 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Knowledge Graph - SpaceBio AI{% endblock %}
+
+{% block content %}
+<br><br>
+<div class="container mx-auto px-4 py-8 mt-5" x-data="knowledgeGraph()" x-init="init()">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header avec fond vert uni -->
+    <div class="bg-green-600 rounded-2xl shadow-lg p-6 text-white mb-6">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="text-4xl"></div>
+          <div>
+            <h1 class="text-2xl md:text-3xl font-extrabold">Interactive Knowledge Graph</h1>
+            <p class="text-white/90 text-sm md:text-base">Explore connections between studies, authors, and concepts</p>
+          </div>
+        </div>
+        <button @click="downloadGraphJson"
+                :disabled="!graphData"
+                class="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap">
+          ⬇️ Export JSON
+        </button>
+      </div>
+    </div>
+
+    <!-- Article Selection -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6 border-l-4 border-green-600">
+      <h2 class="font-bold text-lg mb-4 text-green-800">Select Article</h2>
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <select style="color: black;" x-model="selectedArticleId "
+                @change="loadGraph()"
+                class="flex-1 px-4 py-3 border-2 border-green-300 rounded-lg focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-200 transition-all">
+          <option value="">Choose an article…</option>
+          {% for article in articles %}
+            <option value="{{ article.id }}">{{ article.title|truncatechars:120 }}</option>
+          {% endfor %}
+        </select>
+        <button @click="loadGraph()"
+                :disabled="loading || !selectedArticleId"
+                class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium whitespace-nowrap">
+          <span x-show="!loading">🔄 Generate</span>
+          <span x-show="loading">⏳ Loading...</span>
+        </button>
+      </div>
+      <p class="text-sm text-gray-600 mt-3">
+        Builds a knowledge graph around the selected article: similar studies, authors, and keywords.
+      </p>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <!-- Graph Visualization (Takes 3 columns on large screens) -->
+      <div class="lg:col-span-3 bg-white rounded-xl shadow-md overflow-hidden border-t-4 border-green-600">
+        <div class="p-4 border-b border-gray-200 bg-green-50">
+          <h2 class="font-bold text-lg text-green-800">Graph Visualization</h2>
+        </div>
+        <div class="relative">
+          <div id="cy" class="w-full h-[600px] bg-gray-50"></div>
+          
+          <!-- Empty State -->
+          <div x-show="!graphData && !loading" 
+               class="absolute inset-0 flex items-center justify-center bg-white">
+            <div class="text-center text-gray-400">
+              <div class="text-6xl mb-4">📊</div>
+              <p class="text-lg font-medium">No graph generated yet</p>
+              <p class="text-sm mt-2">Select an article above to get started</p>
+            </div>
+          </div>
+
+          <!-- Loading State -->
+          <div x-show="loading" 
+               class="absolute inset-0 flex items-center justify-center bg-white/90 backdrop-blur-sm">
+            <div class="text-center">
+              <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-green-600 border-t-transparent"></div>
+              <p class="mt-4 text-gray-600 font-medium">Generating knowledge graph…</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Sidebar -->
+     <div class="space-y-6 text-black">
+  <!-- Filters Panel -->
+  <div class="bg-white rounded-xl shadow-md p-5 border-l-4 border-green-600">
+    <h2 class="font-bold text-lg mb-4 text-green-800">Filters</h2>
+    <div class="space-y-4">
+      <div>
+        <label class="text-sm font-semibold text-black block mb-2">Node Types</label>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-green-50 p-2 rounded transition-colors">
+            <input type="checkbox" x-model="visibleTypes.article" @change="applyFilters()" class="rounded text-green-600 focus:ring-green-500">
+            <span class="w-3 h-3 rounded bg-green-700"></span>
+            <span>Articles</span>
+          </label>
+          <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-green-50 p-2 rounded transition-colors">
+            <input type="checkbox" x-model="visibleTypes.author" @change="applyFilters()" class="rounded text-green-600 focus:ring-green-500">
+            <span class="w-3 h-3 rounded-full bg-green-600"></span>
+            <span>Authors</span>
+          </label>
+          <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-green-50 p-2 rounded transition-colors">
+            <input type="checkbox" x-model="visibleTypes.keyword" @change="applyFilters()" class="rounded text-green-600 focus:ring-green-500">
+            <span class="w-3 h-3 bg-green-500" style="clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)"></span>
+            <span>Keywords</span>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <label class="text-sm font-semibold text-black block mb-2">Min Similarity</label>
+        <input type="range" min="0" max="1" step="0.05" x-model="minSimilarity"
+               @input="applyFilters()"
+               class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600">
+        <div class="text-xs text-black mt-2 flex justify-between">
+          <span>0.0</span>
+          <span class="font-semibold text-green-700" x-text="parseFloat(minSimilarity).toFixed(2)"></span>
+          <span>1.0</span>
+        </div>
+      </div>
+
+      <button @click="fitGraph()"
+              :disabled="!graphData"
+              class="w-full px-4 py-2 bg-green-100 hover:bg-green-200 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-green-800">
+        🎯 Fit View
+      </button>
+    </div>
+  </div>
+
+  <!-- Insights Panel -->
+  <div class="bg-white rounded-xl shadow-md p-5 border-l-4 border-green-600">
+    <h2 class="font-bold text-lg mb-4 text-green-800">Insights</h2>
+
+    <div x-show="!graphData" class="text-black text-sm text-center py-8">
+      Generate a graph to see insights
+    </div>
+
+    <div x-show="graphData" class="space-y-5 text-black">
+      <div>
+        <h3 class="font-semibold text-black mb-3 flex items-center gap-2">
+          <span>👤</span>
+          <span>Top Authors</span>
+        </h3>
+        <ul class="space-y-2">
+          <template x-for="item in insights.top_authors" :key="item.name">
+            <li class="text-sm flex justify-between items-center p-2 hover:bg-green-50 rounded transition-colors">
+              <span class="truncate flex-1" x-text="item.name"></span>
+              <span class="ml-2 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium" x-text="item.count"></span>
+            </li>
+          </template>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="font-semibold text-black mb-3 flex items-center gap-2">
+          <span>🏷️</span>
+          <span>Top Keywords</span>
+        </h3>
+        <ul class="space-y-2">
+          <template x-for="item in insights.top_keywords" :key="item.keyword">
+            <li class="text-sm flex justify-between items-center p-2 hover:bg-green-50 rounded transition-colors">
+              <span class="truncate flex-1" x-text="item.keyword"></span>
+              <span class="ml-2 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium" x-text="item.count"></span>
+            </li>
+          </template>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Annotations Panel -->
+  <div class="bg-white rounded-xl shadow-md p-5 border-l-4 border-green-600">
+    <h2 class="font-bold text-lg mb-4 text-green-800">Annotations</h2>
+    <div class="space-y-4 text-black">
+      <div>
+        <label class="text-sm font-semibold text-black block mb-2">Selected Node</label>
+        <div class="px-3 py-2 bg-green-50 rounded-lg text-sm text-black min-h-[2.5rem] flex items-center border border-green-200" 
+             x-text="selectedNodeLabel || 'Click a node to select'">
+        </div>
+      </div>
+
+      <div>
+        <label class="text-sm font-semibold text-black block mb-2">Note</label>
+        <textarea x-model="annotationText"
+                  :disabled="!selectedNodeId"
+                  placeholder="Click a node and add a note..."
+                  class="w-full px-3 py-2 border-2 border-green-200 rounded-lg focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-200 h-24 resize-none disabled:bg-gray-50 disabled:cursor-not-allowed transition-all text-black"></textarea>
+      </div>
+
+      <div class="flex gap-2">
+        <button @click="saveAnnotation()"
+                :disabled="!selectedNodeId"
+                class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium">
+          💾 Save
+        </button>
+        <button @click="clearAnnotation()"
+                :disabled="!selectedNodeId || !annotationText"
+                class="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-black rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium">
+          🗑️ Clear
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Cytoscape.js -->
+<script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
+
+<script>
+function knowledgeGraph() {
+  return {
+    selectedArticleId: '',
+    loading: false,
+    cy: null,
+    graphData: null,
+    insights: { top_authors: [], top_keywords: [] },
+    visibleTypes: { article: true, author: true, keyword: true },
+    minSimilarity: 0,
+    annotations: {},
+    selectedNodeId: null,
+    selectedNodeLabel: null,
+    annotationText: '',
+    isInitialLoad: true,
+
+    init() {
+      try {
+        const sel = this.$el.querySelector('select[x-model="selectedArticleId"]');
+        const firstOption = sel?.querySelector('option[value]:not([value=""])');
+        if (firstOption) {
+          this.selectedArticleId = firstOption.value;
+        }
+      } catch (e) {
+        console.error('Init error:', e);
+      }
+    },
+    
+    async loadGraph() {
+      if (!this.selectedArticleId) {
+        alert('Please select an article first');
+        return;
+      }
+      
+      this.loading = true;
+      
+      try {
+        const url = '{% url "core:generate_knowledge_graph" %}' + `?article_id=${encodeURIComponent(this.selectedArticleId)}`;
+        const res = await fetch(url);
+        
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        
+        const data = await res.json();
+        
+        if (!data.success) {
+          alert('Error: ' + (data.error || 'Failed to generate knowledge graph'));
+          return;
+        }
+        
+        this.graphData = data.graph;
+        this.insights = data.insights || { top_authors: [], top_keywords: [] };
+        
+        await this.$nextTick();
+        this.renderGraph();
+        
+        await this.$nextTick();
+        this.fitGraph();
+        
+      } catch (e) {
+        console.error('Load graph error:', e);
+        alert('Network error: ' + e.message);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    renderGraph() {
+      if (!this.graphData) return;
+      
+      const elements = [];
+
+      (this.graphData.nodes || []).forEach(n => {
+        elements.push({
+          data: { 
+            id: n.id, 
+            label: n.label, 
+            type: n.type,
+            ...n 
+          },
+          classes: n.type
+        });
+      });
+
+      (this.graphData.edges || []).forEach(e => {
+        const w = typeof e.weight === 'number' ? e.weight : 0;
+        elements.push({
+          data: { 
+            id: `${e.source}-${e.target}-${e.type}`,
+            source: e.source, 
+            target: e.target, 
+            label: e.label, 
+            type: e.type, 
+            weight: w 
+          },
+          classes: e.type
+        });
+      });
+
+      const container = document.getElementById('cy');
+      if (!container) {
+        console.error('Cytoscape container not found');
+        return;
+      }
+
+      if (elements.length === 0) {
+        container.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400"><p>No graph data to display</p></div>';
+        this.cy = null;
+        return;
+      }
+
+      container.innerHTML = '';
+
+      if (this.cy) {
+        this.cy.destroy();
+        this.cy = null;
+      }
+
+      this.cy = cytoscape({
+        container: container,
+        elements: elements,
+        style: [
+          {
+            selector: 'node',
+            style: {
+              'label': 'data(label)',
+              'font-size': '11px',
+              'text-wrap': 'wrap',
+              'text-max-width': '120px',
+              'text-valign': 'center',
+              'text-halign': 'center',
+              'color': '#fff',
+              'text-outline-color': '#000',
+              'text-outline-width': 2,
+              'width': 40,
+              'height': 40
+            }
+          },
+          {
+            selector: '.article',
+            style: {
+              'background-color': '#059669',
+              'shape': 'round-rectangle',
+              'width': 50,
+              'height': 50
+            }
+          },
+          {
+            selector: '.author',
+            style: {
+              'background-color': '#10B981',
+              'shape': 'ellipse',
+              'width': 45,
+              'height': 45
+            }
+          },
+          {
+            selector: '.keyword',
+            style: {
+              'background-color': '#22C55E',
+              'shape': 'hexagon',
+              'width': 40,
+              'height': 40
+            }
+          },
+          {
+            selector: 'edge',
+            style: {
+              'curve-style': 'bezier',
+              'line-color': '#86EFAC',
+              'width': 2,
+              'target-arrow-shape': 'triangle',
+              'target-arrow-color': '#86EFAC',
+              'label': 'data(label)',
+              'font-size': '9px',
+              'text-rotation': 'autorotate',
+              'text-background-color': '#fff',
+              'text-background-opacity': 0.8,
+              'text-background-padding': '2px'
+            }
+          },
+          {
+            selector: '.similarity',
+            style: {
+              'line-color': '#16A34A',
+              'target-arrow-color': '#16A34A',
+              'width': 'mapData(weight, 0, 1, 1, 5)'
+            }
+          },
+          {
+            selector: '.authored',
+            style: {
+              'line-color': '#22C55E',
+              'target-arrow-color': '#22C55E'
+            }
+          },
+          {
+            selector: '.tagged',
+            style: {
+              'line-color': '#4ADE80',
+              'target-arrow-color': '#4ADE80'
+            }
+          },
+          {
+            selector: 'node:selected',
+            style: {
+              'border-width': 4,
+              'border-color': '#15803D'
+            }
+          }
+        ],
+        layout: {
+          name: 'cose',
+          animate: false,
+          nodeDimensionsIncludeLabels: true,
+          padding: 30
+        }
+      });
+
+      this.cy.on('tap', 'node', (evt) => {
+        const node = evt.target;
+        this.selectedNodeId = node.id();
+        this.selectedNodeLabel = node.data('label');
+        this.annotationText = this.annotations[this.selectedNodeId] || '';
+      });
+
+      this.cy.on('tap', (evt) => {
+        if (evt.target === this.cy) {
+          this.selectedNodeId = null;
+          this.selectedNodeLabel = null;
+          this.annotationText = '';
+        }
+      });
+    },
+
+    applyFilters() {
+      if (!this.cy) return;
+
+      const showArticle = this.visibleTypes.article;
+      const showAuthor = this.visibleTypes.author;
+      const showKeyword = this.visibleTypes.keyword;
+
+      this.cy.nodes().forEach(n => {
+        const t = n.data('type');
+        const visible = (t === 'article' && showArticle) ||
+                        (t === 'author' && showAuthor) ||
+                        (t === 'keyword' && showKeyword);
+        n.style('display', visible ? 'element' : 'none');
+      });
+
+      const threshold = parseFloat(this.minSimilarity) || 0;
+      this.cy.edges('.similarity').forEach(e => {
+        const w = e.data('weight') || 0;
+        e.style('display', w >= threshold ? 'element' : 'none');
+      });
+
+      this.cy.edges().not('.similarity').forEach(e => {
+        const src = this.cy.getElementById(e.data('source'));
+        const tgt = this.cy.getElementById(e.data('target'));
+        const srcVisible = src.style('display') !== 'none';
+        const tgtVisible = tgt.style('display') !== 'none';
+        e.style('display', (srcVisible && tgtVisible) ? 'element' : 'none');
+      });
+    },
+
+    fitGraph() {
+      if (!this.cy) return;
+      this.cy.fit(null, 50);
+    },
+
+    saveAnnotation() {
+      if (!this.selectedNodeId) return;
+      this.annotations[this.selectedNodeId] = this.annotationText || '';
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+      alertDiv.textContent = `✓ Annotation saved for: ${this.selectedNodeLabel}`;
+      document.body.appendChild(alertDiv);
+      setTimeout(() => alertDiv.remove(), 3000);
+    },
+
+    clearAnnotation() {
+      if (!this.selectedNodeId) return;
+      delete this.annotations[this.selectedNodeId];
+      this.annotationText = '';
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'fixed top-4 right-4 bg-gray-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+      alertDiv.textContent = `✓ Annotation cleared for: ${this.selectedNodeLabel}`;
+      document.body.appendChild(alertDiv);
+      setTimeout(() => alertDiv.remove(), 3000);
+    },
+
+    downloadGraphJson() {
+      if (!this.graphData) {
+        alert('No graph data to export yet');
+        return;
+      }
+      
+      const payload = {
+        article_id: this.selectedArticleId,
+        graph: this.graphData,
+        annotations: this.annotations,
+        insights: this.insights,
+        exported_at: new Date().toISOString()
+      };
+      
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `knowledge_graph_${this.selectedArticleId}_${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  }
+}
+</script>
+
+<style>
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+</style>
+
+{% endblock %}

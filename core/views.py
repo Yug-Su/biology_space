@@ -232,7 +232,7 @@ def chat_message(request):
             if ArticleEmbedding.objects.exists():
                 similar = asyncio.run(embedding_service.search_similar(message, limit=3))
                 context_articles = [
-                    f"**{art.title}** (Year: {art.publication_year or 'N/A'})\n"
+                    f"**{art.title}** (Year: {art.publication_date.year if art.publication_date else 'N/A'})\n"
                     f"Authors: {art.authors or 'N/A'}\n"
                     f"Abstract: {(art.abstract or 'No abstract')[:300]}..."
                     for art, score in similar if score > 0.5  # Only include relevant matches
@@ -245,7 +245,7 @@ def chat_message(request):
                     Q(abstract__icontains=keywords[0]) if keywords else Q()
                 )[:3]
                 context_articles = [
-                    f"**{art.title}** (Year: {art.publication_year or 'N/A'})\n"
+                    f"**{art.title}** (Year: {art.publication_date.year if art.publication_date else 'N/A'})\n"
                     f"Authors: {art.authors or 'N/A'}\n"
                     f"Abstract: {(art.abstract or 'No abstract')[:300]}..."
                     for art in articles
@@ -327,7 +327,7 @@ def generate_article(request):
                 similar = asyncio.run(embedding_service.search_similar(topic, limit=5))
                 context_articles = [
                     f"**{art.title}**\n"
-                    f"Year: {art.publication_year or 'N/A'}\n"
+                    f"Year: {art.publication_date.year if art.publication_date else 'N/A'}\n"
                     f"Authors: {art.authors or 'N/A'}\n"
                     f"Abstract: {art.abstract or 'No abstract available'}\n"
                     f"Relevance: {score:.2f}"
@@ -345,7 +345,7 @@ def generate_article(request):
                 articles = Article.objects.filter(q_filter).distinct()[:5]
                 context_articles = [
                     f"**{art.title}**\n"
-                    f"Year: {art.publication_year or 'N/A'}\n"
+                    f"Year: {art.publication_date.year if art.publication_date else 'N/A'}\n"
                     f"Authors: {art.authors or 'N/A'}\n"
                     f"Abstract: {art.abstract or 'No abstract available'}"
                     for art in articles
@@ -591,3 +591,396 @@ Format with markdown. Be specific and cite studies appropriately."""
             'success': False,
             'error': str(e)
         }, status=500)
+
+# Luma Kids Chatbot views
+
+def luma(request):
+    """Kids-friendly chatbot page for Luma persona"""
+    # Create or get Luma chat session (separate from adult chat)
+    session_id = request.session.get('luma_session_id')
+
+    if session_id:
+        try:
+            chat_session = ChatSession.objects.get(session_id=session_id, is_active=True)
+        except ChatSession.DoesNotExist:
+            chat_session = ChatSession.objects.create()
+            request.session['luma_session_id'] = str(chat_session.session_id)
+    else:
+        chat_session = ChatSession.objects.create()
+        request.session['luma_session_id'] = str(chat_session.session_id)
+
+    # Initialize simple progress tracking in Django session
+    if 'luma_score' not in request.session:
+        request.session['luma_score'] = 0
+    if 'luma_badges' not in request.session:
+        request.session['luma_badges'] = []
+
+    # Seed a starter message if this is a fresh session
+    if len(chat_session.messages) == 0:
+        start_message = (
+            "👋 Hi space explorer! I'm Luma, your intergalactic guide 🪐.\n"
+            "I have lots of games for you today! What do you want to do?\n\n"
+            "1️⃣ Bioplant Mission 🌱: discover how plants survive on a space station!\n"
+            "2️⃣ Body in Microgravity 🧑‍🚀: explore what happens to your body in space!\n"
+            "3️⃣ Cosmic Quiz 🧬: a challenge to test your science memory!\n\n"
+            "Choose your adventure by typing the number or the game name 🚀"
+        )
+        chat_session.add_message('assistant', start_message)
+
+    return render(request, 'core/luma.html', {
+        'session': chat_session,
+        'messages_json': json.dumps(chat_session.messages),
+        'luma_score': request.session.get('luma_score', 0),
+        'luma_badges': request.session.get('luma_badges', []),
+    })
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def luma_message(request):
+    """Handle kids chatbot message via Luma persona and return AI response"""
+    try:
+        data = json.loads(request.body)
+        message = data.get('message', '').strip()
+        session_id = data.get('session_id')
+
+        if not message:
+            return JsonResponse({'error': 'Message is required'}, status=400)
+
+        # Load session
+        chat_session = ChatSession.objects.get(session_id=session_id)
+
+        # Add child message
+        chat_session.add_message('user', message)
+
+        # Build kid-friendly, grounded context from our articles
+        context_articles = []
+        try:
+            if ArticleEmbedding.objects.exists():
+                similar = asyncio.run(embedding_service.search_similar(message, limit=3))
+                context_articles = [
+                    (
+                        f"• {art.title}\n"
+                        f"Summary: {(art.abstract or 'No abstract')[:200]}...\n"
+                        f"Link: {art.url}"
+                    )
+                    for art, score in similar if score > 0.5
+                ]
+            else:
+                keywords = message.lower().split()[:5]
+                articles = Article.objects.filter(
+                    Q(title__icontains=keywords[0]) |
+                    Q(abstract__icontains=keywords[0]) if keywords else Q()
+                )[:3]
+                context_articles = [
+                    (
+                        f"• {art.title}\n"
+                        f"Summary: {(art.abstract or 'No abstract')[:200]}...\n"
+                        f"Link: {art.url}"
+                    )
+                    for art in articles
+                ]
+        except Exception:
+            # If search fails, continue without context
+            context_articles = []
+
+        # Recent conversation history
+        messages_hist = chat_session.get_recent_messages(limit=10)
+        ai_messages = [{'role': m['role'], 'content': m['content']} for m in messages_hist]
+
+        # Luma persona system prompt (English, age-appropriate, game-based)
+        luma_system_prompt = """You are Luma, a playful learning companion for kids aged 7–12.
+Domain: space biology 🌌🧬.
+Goal: teach by playing (quizzes, riddles, short stories, true/false, mini-challenges).
+
+Style & rules:
+- Joyful, empathetic, engaging tone 🎈 (use emojis).
+- SHORT replies: 1–3 sentences, then a question or a choice.
+- Vary formats: quiz, riddle, true/false, mini-adventure.
+- Celebrate success often: “Great job, young scientist!” ✅
+- Use kid-friendly words; simplify concepts with concrete examples.
+- If off-topic, gently redirect to space biology.
+- Frequently offer activity choices (e.g., 1, 2, 3).
+- You may award badges: “Lunar Biologist 🌕”, “Plant Hero 🌱”, etc.
+
+Scientific content:
+- ONLY use information from the provided context (articles) or simple, safe space-biology facts.
+- Rephrase for kids; do not invent studies.
+- You may provide “Learn more” with a link (if present).
+
+Game flow:
+- If the child picks “Bioplant Mission”, ask a simple question (e.g., why do roots get confused in microgravity?) and propose 3 fun options (a/b/c).
+- If correct, celebrate and add a tiny challenge or a vivid mental image.
+- Keep the pace: offer to continue the mission or try another game.
+"""
+
+        # Get AI response with Luma persona
+        response = asyncio.run(
+            ai_provider.chat(
+                ai_messages,
+                max_tokens=800,
+                context_articles=context_articles if context_articles else None,
+                system_prompt=luma_system_prompt
+            )
+        )
+
+        # Add AI response
+        chat_session.add_message('assistant', response)
+
+        # Naive score/badge tracking (heuristics; can be improved)
+        score_inc = 1 if ('✅' in response) or ('Bravo' in response) else 0
+        request.session['luma_score'] = request.session.get('luma_score', 0) + score_inc
+
+        badges = request.session.get('luma_badges', [])
+        if ('badge' in response.lower()) and ('lunaire' in response.lower()) and ('Biologiste Lunaire' not in badges):
+            badges.append('Biologiste Lunaire 🌕')
+        request.session['luma_badges'] = badges
+
+        return JsonResponse({
+            'success': True,
+            'response': response,
+            'session_id': str(chat_session.session_id),
+            'persona': 'luma',
+            'score': request.session['luma_score'],
+            'badges': request.session['luma_badges']
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+# Knowledge Graph and Experiment Scenario features
+
+def knowledge_graph(request):
+    """Interactive knowledge graph page to explore article connections"""
+    # Provide some articles for quick selection; frontend can still accept manual input
+    articles = Article.objects.all()[:50]
+
+    # Data readiness metrics to align UI with project data sources
+    stats_total_articles = Article.objects.count()
+    stats_embeddings = ArticleEmbedding.objects.count()
+
+    return render(request, 'core/knowledge_graph.html', {
+        'articles': articles,
+        'stats_total_articles': stats_total_articles,
+        'stats_embeddings': stats_embeddings,
+    })
+
+
+@require_http_methods(["GET"])
+def generate_knowledge_graph(request):
+    """
+    Build a knowledge graph for a selected article.
+    Nodes: articles, authors, keywords
+    Edges: similarity(article↔article), authored(author↔article), tagged(keyword↔article)
+    Insights: top authors, top keywords
+    """
+    try:
+        article_id = request.GET.get('article_id')
+        if not article_id:
+            return JsonResponse({'success': False, 'error': 'article_id is required'}, status=400)
+
+        article = get_object_or_404(Article, id=article_id)
+
+        # Initialize graph
+        nodes = []
+        edges = []
+
+        def add_node(node_id, label, node_type, extra=None):
+            if extra is None:
+                extra = {}
+            nodes.append({
+                'id': node_id,
+                'label': label,
+                'type': node_type,
+                **extra
+            })
+
+        def add_edge(source, target, label, edge_type, extra=None):
+            if extra is None:
+                extra = {}
+            edges.append({
+                'source': source,
+                'target': target,
+                'label': label,
+                'type': edge_type,
+                **extra
+            })
+
+        # Main article node
+        main_id = f"article:{article.id}"
+        add_node(main_id, article.title, 'article', {
+            'pmc_id': article.pmc_id,
+            'url': article.url
+        })
+
+        # Authors and keywords of main article
+        for author in (article.authors or [])[:10]:
+            author_id = f"author:{author}"
+            # Avoid duplicates with a simple presence check
+            if not any(n['id'] == author_id for n in nodes):
+                add_node(author_id, author, 'author')
+            add_edge(author_id, main_id, 'authored', 'authored')
+
+        for kw in (article.keywords or [])[:10]:
+            kw_id = f"keyword:{kw}"
+            if not any(n['id'] == kw_id for n in nodes):
+                add_node(kw_id, kw, 'keyword')
+            add_edge(kw_id, main_id, 'tagged', 'tagged')
+
+        # Similarity-based related articles via embeddings if available
+        similar_results = []
+        try:
+            if ArticleEmbedding.objects.exists():
+                similar_results = asyncio.run(
+                    embedding_service.search_similar(article.title, limit=15)
+                )
+        except Exception:
+            similar_results = []
+
+        # Fallback: keyword-based search if embeddings not available or failed
+        if not similar_results:
+            try:
+                words = (article.title or '').lower().split()[:3]
+                q = Q()
+                for w in words:
+                    q |= Q(title__icontains=w) | Q(abstract__icontains=w)
+                fallback_articles = Article.objects.filter(q).exclude(id=article.id)[:10]
+                similar_results = [(a, 0.3) for a in fallback_articles]
+            except Exception:
+                similar_results = []
+
+        # Build graph from similar results
+        author_counts = {}
+        keyword_counts = {}
+
+        for sim_article, score in similar_results:
+            if sim_article.id == article.id:
+                continue
+            sid = f"article:{sim_article.id}"
+            if not any(n['id'] == sid for n in nodes):
+                add_node(sid, sim_article.title, 'article', {
+                    'pmc_id': sim_article.pmc_id,
+                    'url': sim_article.url,
+                    'publication_year': sim_article.publication_date.year if sim_article.publication_date else None
+                })
+
+            # Similarity edge
+            add_edge(main_id, sid, f"similarity {score:.2f}", 'similarity', {'weight': score})
+
+            # Authors and keywords nodes/edges
+            for author in (sim_article.authors or [])[:10]:
+                author_counts[author] = author_counts.get(author, 0) + 1
+                aid = f"author:{author}"
+                if not any(n['id'] == aid for n in nodes):
+                    add_node(aid, author, 'author')
+                add_edge(aid, sid, 'authored', 'authored')
+
+            for kw in (sim_article.keywords or [])[:10]:
+                keyword_counts[kw] = keyword_counts.get(kw, 0) + 1
+                kid = f"keyword:{kw}"
+                if not any(n['id'] == kid for n in nodes):
+                    add_node(kid, kw, 'keyword')
+                add_edge(kid, sid, 'tagged', 'tagged')
+
+        # Simple insights: top authors and keywords across the neighborhood
+        top_authors = sorted(author_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+        top_keywords = sorted(keyword_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+
+        return JsonResponse({
+            'success': True,
+            'graph': {
+                'nodes': nodes,
+                'edges': edges
+            },
+            'insights': {
+                'top_authors': [{'name': a, 'count': c} for a, c in top_authors],
+                'top_keywords': [{'keyword': k, 'count': c} for k, c in top_keywords]
+            }
+        })
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+def experiment_extractor(request):
+    """Experiment scenario extraction page"""
+    # Provide a few articles for selection convenience
+    articles = Article.objects.all()[:50]
+    return render(request, 'core/experiment_extractor.html', {
+        'articles': articles
+    })
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def extract_scenarios(request):
+    """
+    Extract structured experimental scenarios from a selected article.
+    Returns a standardized JSON with steps, variables, results, conclusions, and cross-study suggestions.
+    """
+    try:
+        data = json.loads(request.body)
+        article_id = str(data.get('article_id', '')).strip()
+        if not article_id:
+            return JsonResponse({'success': False, 'error': 'article_id is required'}, status=400)
+
+        article = get_object_or_404(Article, id=article_id)
+
+        # Build input text (limit sizes to keep prompt reasonable)
+        title = article.title or ''
+        abstract = (article.abstract or '')[:2000]
+        content_snip = (article.content or '')[:4000]
+
+        prompt = f"""Extract standardized experimental scenarios from the following scientific article.
+
+Article Title: {title}
+
+Abstract:
+{abstract}
+
+Content (snippet):
+{content_snip}
+
+Output STRICTLY in JSON with this schema:
+{{
+  "scenarios": [
+    {{
+      "title": "short scenario title",
+      "objective": "goal of the experiment",
+      "steps": ["step 1", "step 2", "step 3"],
+      "variables": ["independent variables", "dependent variables", "controls"],
+      "methods": ["key methods used"],
+      "results": ["main results"],
+      "conclusions": ["key conclusions"]
+    }}
+  ],
+  "cross_study_suggestions": [
+    {{
+      "idea": "combine scenario X from this article with scenario Y from related articles",
+      "rationale": "why this combination is promising",
+      "hypothesis": "testable hypothesis"
+    }}
+  ]
+}}
+
+Rules:
+- Use only information inferable from this article excerpt; do not invent studies.
+- Keep steps concise and actionable.
+- If data is missing, include placeholders like "unknown".
+"""
+
+        # Ask AI provider to produce structured JSON
+        raw = asyncio.run(ai_provider.generate(prompt=prompt, max_tokens=1500))
+
+        # Try to parse JSON; if parsing fails, return raw text for inspection
+        try:
+            parsed = json.loads(raw)
+            return JsonResponse({'success': True, 'data': parsed})
+        except Exception:
+            return JsonResponse({'success': True, 'data_raw': raw})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)

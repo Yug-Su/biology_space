@@ -1,125 +1,790 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
 {% block title %}AI Chat - SpaceBio AI{% endblock %}
 
+{% block extra_css %}
+<style>
+body {
+  background-image: url("{% static 'images/chat.jpg' %}");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: -1;
+}
+
+/* Chat Layout */
+.chat-layout {
+  display: flex;
+  gap: 15px;
+  height: auto;
+  position: relative;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Sources Sidebar */
+.sources-sidebar {
+  width: 320px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+  z-index: 100;
+  border-radius: 12px;
+  overflow: hidden;
+  max-height: calc(100vh - 140px);
+}
+
+.sidebar-header {
+  padding: 20px;
+  background: #27ae60;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.close-sidebar {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 5px;
+  display: none;
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.sources-empty {
+  text-align: center;
+  color: #666;
+  padding: 40px 20px;
+}
+
+.sources-empty i {
+  font-size: 3rem;
+  color: #ccc;
+  margin-bottom: 15px;
+}
+
+.source-item {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.source-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.source-icon {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  background: #27ae60;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.source-details h4 {
+  margin: 0 0 10px 0;
+  color: #1a202c;
+  font-size: 1rem;
+}
+
+.source-details p {
+  margin: 0 0 10px 0;
+  color: #4a5568;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.source-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: #718096;
+}
+
+.source-meta a {
+  color: #27ae60;
+  text-decoration: none;
+}
+
+.source-meta a:hover {
+  text-decoration: underline;
+}
+
+/* Toggle Sidebar Button */
+.toggle-sidebar {
+  position: fixed;
+  top: 100px;
+  left: 20px;
+  background: #27ae60;
+  color: white;
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 99;
+  transition: transform 0.3s ease;
+}
+
+.toggle-sidebar:hover {
+  transform: scale(1.1);
+  background: #229954;
+}
+
+.toggle-sidebar .badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+/* Chat Container */
+.chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  max-width: 1000px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  max-height: calc(100vh - 140px);
+}
+
+.chat-header {
+  padding: 10px 10px;
+  background: #27ae60;
+  color: white;
+  text-align: center;
+}
+
+.chat-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 8px;
+}
+
+.chat-title i {
+  font-size: 2rem;
+}
+
+.chat-title h1 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.chat-subtitle {
+  margin: 0;
+  opacity: 0.95;
+  font-size: 0.95rem;
+}
+
+/* Chat Messages */
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 25px 30px;
+  background: #f7fafc;
+  margin-bottom: 10px;
+}
+
+.message {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.2rem;
+}
+
+.bot-message .message-avatar {
+  background: #27ae60;
+  color: white;
+}
+
+.user-message {
+  flex-direction: row-reverse;
+}
+
+.user-message .message-avatar {
+  background: #229954;
+  color: white;
+}
+
+.message-content {
+  flex: 1;
+  max-width: 70%;
+}
+
+.user-message .message-content {
+  text-align: right;
+}
+
+.message-sender {
+  font-size: 0.85rem;
+  color: #718096;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.message-text {
+  background: white;
+  padding: 15px 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  line-height: 1.6;
+  color: #2d3748;
+}
+
+.user-message .message-text {
+  background: #27ae60;
+  color: white;
+}
+
+.message-sources {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: #e8f5e9;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #27ae60;
+  display: inline-block;
+}
+
+.message-time {
+  font-size: 0.75rem;
+  color: #a0aec0;
+  margin-top: 5px;
+}
+
+/* Chat Input */
+.chat-input-container {
+  padding: 20px 30px 25px;
+  background: white;
+  border-top: 1px solid #e2e8f0;
+}
+
+.chat-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.input-wrapper {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: #f7fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 5px;
+  transition: border-color 0.3s ease;
+}
+
+.input-wrapper:focus-within {
+  border-color: #27ae60;
+}
+
+#user-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 12px 15px;
+  font-size: 1rem;
+  outline: none;
+}
+
+.input-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.input-button {
+  background: none;
+  border: none;
+  color: #718096;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.input-button:hover {
+  background: #e2e8f0;
+  color: #2d3748;
+}
+
+.send-button {
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.send-button:hover {
+  background: #229954;
+  transform: scale(1.05);
+}
+
+.send-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.suggestions span {
+  font-size: 0.9rem;
+  color: #718096;
+  font-weight: 500;
+}
+
+.suggestion-btn {
+  background: white;
+  border: 1px solid #e2e8f0;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: #4a5568;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.suggestion-btn:hover {
+  background: #27ae60;
+  color: white;
+  border-color: #27ae60;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .chat-layout {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .sources-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px;
+    height: 100vh;
+    transform: translateX(-100%);
+    z-index: 1000;
+    border-radius: 0;
+    max-height: 100vh;
+  }
+
+  .sources-sidebar.active {
+    transform: translateX(0);
+  }
+
+  .close-sidebar {
+    display: block;
+  }
+
+  .toggle-sidebar {
+    display: flex;
+  }
+
+  .chat-container {
+    max-height: calc(100vh - 100px);
+  }
+
+  .chat-header {
+    padding: 20px;
+  }
+
+  .chat-title h1 {
+    font-size: 1.3rem;
+  }
+
+  .chat-title i {
+    font-size: 1.5rem;
+  }
+
+  .message-content {
+    max-width: 85%;
+  }
+
+  .suggestions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .chat-messages {
+    padding: 20px;
+  }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-4xl mx-auto">
-        <div class="bg-white rounded-lg shadow-lg" x-data="{
-            messages: {{ messages_json|safe }},
-            newMessage: '',
-            loading: false,
-            sessionId: '{{ session.session_id }}',
+<br><br><br><br>
 
-            async sendMessage() {
-                if (!this.newMessage.trim() || this.loading) return;
+<!-- Conteneur principal avec sidebar et chat -->
+<div class="chat-layout">
+  <!-- Bouton pour ouvrir la sidebar sur mobile -->
+  <button class="toggle-sidebar" id="toggle-sidebar" aria-label="Show sources">
+    <i class="fas fa-book"></i>
+    <span class="badge" id="sources-count">0</span>
+  </button>
 
-                const userMessage = this.newMessage;
-                this.messages.push({role: 'user', content: userMessage});
-                this.newMessage = '';
-                this.loading = true;
-
-                try {
-                    const response = await fetch('{% url 'core:chat_message' %}', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            message: userMessage,
-                            session_id: this.sessionId
-                        })
-                    });
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        this.messages.push({role: 'assistant', content: data.response});
-                        this.$nextTick(() => {
-                            const chatContainer = document.getElementById('chat-messages');
-                            chatContainer.scrollTop = chatContainer.scrollHeight;
-                        });
-                    } else {
-                        alert('Error: ' + data.error);
-                    }
-                } catch (error) {
-                    alert('Error: ' + error);
-                } finally {
-                    this.loading = false;
-                }
-            }
-        }">
-            <!-- Header -->
-            <div class="p-6 border-b">
-                <h1 class="text-2xl font-bold">💬 AI Chat Assistant</h1>
-                <p class="text-gray-600 mt-1">Ask questions about space biology research</p>
-            </div>
-
-            <!-- Chat Messages -->
-            <div id="chat-messages" class="h-96 overflow-y-auto p-6 space-y-4">
-                <template x-if="messages.length === 0">
-                    <div class="text-center text-gray-500 mt-20">
-                        <div class="text-6xl mb-4">🤖</div>
-                        <p>Start a conversation about space biology!</p>
-                    </div>
-                </template>
-
-                <template x-for="(msg, index) in messages" :key="index">
-                    <div :class="msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
-                        <div
-                            :class="msg.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-800'"
-                            class="max-w-[80%] rounded-lg p-4"
-                        >
-                            <div class="text-xs mb-1" :class="msg.role === 'user' ? 'text-indigo-200' : 'text-gray-500'">
-                                <span x-text="msg.role === 'user' ? 'You' : '🤖 AI Assistant'"></span>
-                            </div>
-                            <div class="whitespace-pre-wrap" x-text="msg.content"></div>
-                        </div>
-                    </div>
-                </template>
-
-                <template x-if="loading">
-                    <div class="flex justify-start">
-                        <div class="bg-gray-100 rounded-lg p-4">
-                            <div class="flex space-x-2">
-                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-            </div>
-
-            <!-- Input -->
-            <div class="p-6 border-t">
-                <form @submit.prevent="sendMessage" class="flex space-x-4">
-                    <input
-                        x-model="newMessage"
-                        type="text"
-                        placeholder="Ask about space biology research..."
-                        class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
-                        :disabled="loading"
-                    >
-                    <button
-                        type="submit"
-                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition disabled:opacity-50"
-                        :disabled="loading || !newMessage.trim()"
-                    >
-                        Send
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Examples -->
-        <div class="mt-8 bg-purple-50 rounded-lg p-6">
-            <h3 class="font-bold mb-3">💡 Example Questions:</h3>
-            <div class="space-y-2">
-                <p class="text-gray-700">• What are the effects of microgravity on bone density?</p>
-                <p class="text-gray-700">• Summarize recent ISS experiments on plant growth</p>
-                <p class="text-gray-700">• How does space radiation affect DNA?</p>
-                <p class="text-gray-700">• What are the latest findings on muscle atrophy in space?</p>
-            </div>
-        </div>
+  <!-- Conteneur principal du chat -->
+  <main 
+    class="chat-container" 
+    x-data="chatComponent()" 
+    x-init="initChat()"
+  >
+    <div class="chat-header">
+      <div class="chat-title">
+        <i class="fas fa-robot"></i>
+        <h1>Space Biology AI Assistant</h1>
+      </div>
+      <p class="chat-subtitle">Ask questions about space biology and space exploration</p>
     </div>
+
+    <div class="chat-messages" id="chat-messages">
+      <!-- Welcome message -->
+      <template x-if="messages.length === 0">
+        <div class="message bot-message">
+          <div class="message-avatar">
+            <i class="fas fa-robot"></i>
+          </div>
+          <div class="message-content">
+            <div class="message-sender">AI Assistant</div>
+            <div class="message-text">
+              Hello! I'm your space biology assistant. Ask me questions about space exploration,
+              life in space, microgravity research, or any topic related to space biology.
+            </div>
+            <div class="message-time">Now</div>
+          </div>
+        </div>
+      </template>
+
+      <!-- Messages -->
+      <template x-for="(msg, index) in messages" :key="index">
+        <div :class="msg.role === 'user' ? 'message user-message' : 'message bot-message'">
+          <div class="message-avatar">
+            <i :class="msg.role === 'user' ? 'fas fa-user' : 'fas fa-robot'"></i>
+          </div>
+          <div class="message-content">
+            <div class="message-sender" x-text="msg.role === 'user' ? 'You' : 'AI Assistant'"></div>
+            <div class="message-text" x-html="msg.content.replace(/\n/g, '<br>')"></div>
+
+            <template x-if="msg.sources && msg.sources.length > 0">
+              <div class="message-sources">
+                <i class="fas fa-link"></i> Sources used: <span x-text="msg.sources.length"></span>
+              </div>
+            </template>
+
+            <div class="message-time" x-text="msg.time || 'Now'"></div>
+          </div>
+        </div>
+      </template>
+
+      <!-- Loading indicator -->
+      <template x-if="loading">
+        <div class="message bot-message">
+          <div class="message-avatar">
+            <i class="fas fa-robot"></i>
+          </div>
+          <div class="message-content">
+            <div class="message-sender">AI Assistant</div>
+            <div class="message-text">
+              <div style="display: flex; gap: 8px;">
+                <div style="width: 8px; height: 8px; background: #27ae60; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both;"></div>
+                <div style="width: 8px; height: 8px; background: #27ae60; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; animation-delay: -0.32s;"></div>
+                <div style="width: 8px; height: 8px; background: #27ae60; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; animation-delay: -0.16s;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <div class="chat-input-container">
+      <form @submit.prevent="sendMessage" class="chat-form">
+        <div class="input-wrapper">
+          <input 
+            x-model="newMessage"
+            type="text"
+            placeholder="Ask your question about space biology..."
+            autocomplete="off"
+            :disabled="loading"
+          >
+          <div class="input-buttons">
+            <button 
+              type="submit" 
+              class="send-button" 
+              aria-label="Send message" 
+              :disabled="loading || !newMessage.trim()"
+            >
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+        <div class="suggestions">
+          <span>Suggestions:</span>
+          <button type="button" class="suggestion-btn" @click="newMessage = 'What is space biology?'">
+            What is space biology?
+          </button>
+          <button type="button" class="suggestion-btn" @click="newMessage = 'How does the human body adapt to weightlessness?'">
+            How does the human body adapt to weightlessness?
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
 </div>
+
+<script>
+  function chatComponent() {
+    return {
+      messages: [],
+      newMessage: '',
+      loading: false,
+      sessionId: '',
+      sources: [],
+
+      initChat() {
+        this.messages = JSON.parse('{{ messages_json|escapejs }}');
+        this.sessionId = '{{ session.session_id }}';
+      },
+
+      async sendMessage() {
+        if (!this.newMessage.trim() || this.loading) return;
+
+        const userMessage = this.newMessage;
+        this.messages.push({
+          role: 'user',
+          content: userMessage,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+        this.newMessage = '';
+        this.loading = true;
+
+        this.$nextTick(() => {
+          const chatMessages = document.getElementById('chat-messages');
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+
+        try {
+          const response = await fetch('{% url "core:chat_message" %}', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+              message: userMessage,
+              session_id: this.sessionId
+            })
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            this.messages.push({
+              role: 'assistant',
+              content: data.response,
+              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              sources: data.sources || []
+            });
+
+            if (data.sources?.length) {
+              data.sources.forEach(source => this.addSource(source));
+            }
+
+            this.$nextTick(() => {
+              const chatMessages = document.getElementById('chat-messages');
+              chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
+          } else {
+            alert('Error: ' + data.error);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Connection error. Please try again.');
+        } finally {
+          this.loading = false;
+        }
+      },
+
+      addSource(source) {
+        if (!this.sources.find(s => s.url === source.url)) {
+          this.sources.push(source);
+          this.updateSourcesSidebar();
+        }
+      },
+
+      updateSourcesSidebar() {
+        const sidebar = document.getElementById('sidebar-content');
+        const count = document.getElementById('sources-count');
+        count.textContent = this.sources.length;
+
+        if (this.sources.length === 0) {
+          sidebar.innerHTML = `
+            <div class='sources-empty'>
+              <i class='fas fa-file-alt'></i>
+              <p>NASA articles used to answer your questions will appear here</p>
+            </div>
+          `;
+        } else {
+          sidebar.innerHTML = this.sources.map(source => `
+            <div class='source-item'>
+              <div class='source-icon'>
+                <i class='fas fa-newspaper'></i>
+              </div>
+              <div class='source-details'>
+                <h4>${source.title}</h4>
+                <p>${source.excerpt}</p>
+                <div class='source-meta'>
+                  <span><i class='fas fa-calendar'></i> ${source.date}</span>
+                  <a href='${source.url}' target='_blank' rel='noopener'>
+                    <i class='fas fa-external-link-alt'></i> View article
+                  </a>
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+    }
+  }
+</script>
+
+<style>
+@keyframes bounce {
+  0%, 80%, 100% { 
+    transform: scale(0);
+  }
+  40% { 
+    transform: scale(1);
+  }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const sourcesSidebar = document.getElementById('sources-sidebar');
+  const toggleSidebar = document.getElementById('toggle-sidebar');
+  const closeSidebar = document.getElementById('close-sidebar');
+
+  if (toggleSidebar) {
+    toggleSidebar.addEventListener('click', function() {
+      sourcesSidebar.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+  }
+
+  if (closeSidebar) {
+    closeSidebar.addEventListener('click', function() {
+      sourcesSidebar.classList.remove('active');
+      document.body.style.overflow = '';
+    });
+  }
+
+  document.addEventListener('click', function(e) {
+    if (sourcesSidebar.classList.contains('active') && 
+        !sourcesSidebar.contains(e.target) && 
+        !toggleSidebar.contains(e.target)) {
+      sourcesSidebar.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+});
+</script>
 {% endblock %}
