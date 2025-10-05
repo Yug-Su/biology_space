@@ -1,0 +1,30 @@
+# Core Django
+Django==5.0.1
+django-environ==0.11.2
+django-extensions==3.2.3
+
+# AI & ML
+openai==1.12.0
+anthropic==0.18.1
+langchain==0.1.9
+langchain-openai==0.0.6
+sentence-transformers==2.3.1
+numpy==1.26.4
+
+# Data Processing
+pandas==2.2.0
+beautifulsoup4==4.12.3
+requests==2.31.0
+
+# API & Async
+httpx==0.26.0
+aiohttp==3.9.3
+
+# Utilities
+python-dotenv==1.0.1
+Pillow==10.2.0
+
+# Development
+black==24.1.1
+flake8==7.0.0
+ipython==8.21.0

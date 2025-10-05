@@ -1,0 +1,127 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Search - SpaceBio AI{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Search Bar -->
+    <div class="mb-8">
+        <form action="{% url 'core:search' %}" method="GET">
+            <div class="flex max-w-4xl mx-auto">
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ query }}"
+                    placeholder="Search space biology research..."
+                    class="flex-1 px-6 py-3 rounded-l-lg border-2 border-indigo-300 focus:outline-none focus:border-indigo-500"
+                    required
+                >
+                <button
+                    type="submit"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-r-lg font-semibold transition"
+                >
+                    Search
+                </button>
+            </div>
+            <div class="mt-3 flex justify-center space-x-4">
+                <label class="inline-flex items-center">
+                    <input type="radio" name="type" value="simple" {% if search_type == 'simple' %}checked{% endif %} class="mr-2">
+                    Simple Search
+                </label>
+                <label class="inline-flex items-center">
+                    <input type="radio" name="type" value="semantic" {% if search_type == 'semantic' %}checked{% endif %} class="mr-2">
+                    Semantic Search (AI)
+                </label>
+            </div>
+        </form>
+    </div>
+
+    {% if query %}
+    <!-- Results -->
+    <div class="max-w-6xl mx-auto">
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold">
+                {% if results %}
+                    Found {{ results|length }} results for "{{ query }}"
+                {% else %}
+                    No results found for "{{ query }}"
+                {% endif %}
+            </h2>
+            {% if search_type == 'semantic' %}
+            <p class="text-sm text-gray-600 mt-1">🤖 Using AI-powered semantic search</p>
+            {% endif %}
+        </div>
+
+        {% if results %}
+        <div class="space-y-6">
+            {% for result in results %}
+                {% if search_type == 'semantic' %}
+                    {# Semantic search returns (article, score) tuples #}
+                    {% with article=result.0 score=result.1 %}
+                    <a href="{% url 'core:article_detail' article.id %}" class="block group">
+                        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <h3 class="text-xl font-semibold mb-2 group-hover:text-indigo-600 transition">
+                                        {{ article.title }}
+                                    </h3>
+                                    {% if article.abstract %}
+                                    <p class="text-gray-600 line-clamp-3">
+                                        {{ article.abstract|truncatewords:50 }}
+                                    </p>
+                                    {% endif %}
+                                    <div class="flex items-center space-x-4 mt-4 text-sm text-gray-500">
+                                        <span>{{ article.views_count }} views</span>
+                                        {% if article.publication_date %}
+                                        <span>{{ article.publication_date|date:"Y" }}</span>
+                                        {% endif %}
+                                        <span class="text-indigo-600 font-medium">
+                                            {{ score|floatformat:2 }} similarity
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    {% endwith %}
+                {% else %}
+                    {# Simple search returns Article objects #}
+                    <a href="{% url 'core:article_detail' result.id %}" class="block group">
+                        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <h3 class="text-xl font-semibold mb-2 group-hover:text-indigo-600 transition">
+                                        {{ result.title }}
+                                    </h3>
+                                    {% if result.abstract %}
+                                    <p class="text-gray-600 line-clamp-3">
+                                        {{ result.abstract|truncatewords:50 }}
+                                    </p>
+                                    {% endif %}
+                                    <div class="flex items-center space-x-4 mt-4 text-sm text-gray-500">
+                                        <span>{{ result.views_count }} views</span>
+                                        {% if result.publication_date %}
+                                        <span>{{ result.publication_date|date:"Y" }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <!-- No query yet -->
+    <div class="max-w-4xl mx-auto text-center">
+        <div class="text-6xl mb-4">🔍</div>
+        <h2 class="text-2xl font-bold mb-4">Search Space Biology Research</h2>
+        <p class="text-gray-600">
+            Enter a search query to find relevant articles from NASA's space biology database
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
