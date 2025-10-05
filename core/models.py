@@ -201,3 +201,39 @@ class GeneratedArticle(models.Model):
 
     def __str__(self):
         return f"Generated: {self.title[:100]}"
+
+
+class LiteratureReview(models.Model):
+    """
+    AI-generated literature reviews
+    Synthesizes multiple articles on a specific topic
+    """
+
+    topic = models.CharField(max_length=500)
+
+    # Generated content sections
+    introduction = models.TextField(blank=True)
+    current_findings = models.TextField(blank=True)
+    controversies = models.TextField(blank=True)
+    future_directions = models.TextField(blank=True)
+    conclusion = models.TextField(blank=True)
+
+    # Full formatted review
+    full_review = models.TextField()
+
+    # Source articles used
+    source_articles = models.ManyToManyField(Article, related_name='literature_reviews')
+    articles_count = models.IntegerField(default=0)
+
+    # Citations in APA format
+    citations = models.JSONField(default=list)
+
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    generation_time_seconds = models.FloatField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Literature Review: {self.topic[:100]}"

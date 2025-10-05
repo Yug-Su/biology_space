@@ -3,7 +3,57 @@
 {% block title %}Search - SpaceBio AI{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
+<div class="container mx-auto px-4 py-8" x-data="{
+    viewerOpen: false,
+    currentArticle: null,
+    activeViewerTab: 'content',
+    articleSummary: '',
+    summaryLoading: false,
+    similarArticles: [],
+
+    async openArticle(articleId) {
+        this.viewerOpen = true;
+        this.currentArticle = null;
+        this.articleSummary = '';
+        this.activeViewerTab = 'content';
+
+        try {
+            const response = await fetch(`/api/article/${articleId}/`);
+            const data = await response.json();
+            this.currentArticle = data;
+            this.similarArticles = data.similar_articles || [];
+        } catch (error) {
+            console.error('Error loading article:', error);
+            alert('Error loading article');
+            this.viewerOpen = false;
+        }
+    },
+
+    async generateSummary() {
+        if (!this.currentArticle || this.summaryLoading) return;
+
+        this.summaryLoading = true;
+        try {
+            const response = await fetch(`/api/article/${this.currentArticle.id}/summarize/`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({type: 'concise'})
+            });
+            const data = await response.json();
+
+            if (data.summary) {
+                this.articleSummary = data.summary;
+            } else {
+                alert('Error: ' + (data.error || 'Failed to generate summary'));
+            }
+        } catch (error) {
+            console.error('Error generating summary:', error);
+            alert('Error generating summary: ' + error.message);
+        } finally {
+            this.summaryLoading = false;
+        }
+    }
+}">
     <!-- Search Bar -->
     <div class="mb-8">
         <form action="{% url 'core:search' %}" method="GET">
@@ -12,10 +62,23 @@
                     type="text"
                     name="q"
                     value="{{ query }}"
-                    placeholder="Search space biology research..."
+                    placeholder="Search by title, abstract, or author..."
                     class="flex-1 px-6 py-3 rounded-l-lg border-2 border-indigo-300 focus:outline-none focus:border-indigo-500"
                     required
                 >
+                <select
+                    name="year"
+                    class="px-4 py-3 border-t-2 border-b-2 border-indigo-300 focus:outline-none focus:border-indigo-500"
+                >
+                    <option value="">All Years</option>
+                    <option value="2024" {% if request.GET.year == '2024' %}selected{% endif %}>2024</option>
+                    <option value="2023" {% if request.GET.year == '2023' %}selected{% endif %}>2023</option>
+                    <option value="2022" {% if request.GET.year == '2022' %}selected{% endif %}>2022</option>
+                    <option value="2021" {% if request.GET.year == '2021' %}selected{% endif %}>2021</option>
+                    <option value="2020" {% if request.GET.year == '2020' %}selected{% endif %}>2020</option>
+                    <option value="2019" {% if request.GET.year == '2019' %}selected{% endif %}>2019</option>
+                    <option value="2018" {% if request.GET.year == '2018' %}selected{% endif %}>2018</option>
+                </select>
                 <button
                     type="submit"
                     class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-r-lg font-semibold transition"
@@ -23,15 +86,19 @@
                     Search
                 </button>
             </div>
-            <div class="mt-3 flex justify-center space-x-4">
-                <label class="inline-flex items-center">
-                    <input type="radio" name="type" value="simple" {% if search_type == 'simple' %}checked{% endif %} class="mr-2">
-                    Simple Search
+            <div class="mt-3 flex justify-center space-x-6">
+                <label class="inline-flex items-center cursor-pointer">
+                    <input type="radio" name="type" value="simple" {% if search_type == 'simple' or not search_type %}checked{% endif %} class="mr-2 text-indigo-600">
+                    <span class="text-gray-700">📝 Simple Search</span>
                 </label>
-                <label class="inline-flex items-center">
-                    <input type="radio" name="type" value="semantic" {% if search_type == 'semantic' %}checked{% endif %} class="mr-2">
-                    Semantic Search (AI)
+                <label class="inline-flex items-center cursor-pointer">
+                    <input type="radio" name="type" value="semantic" {% if search_type == 'semantic' %}checked{% endif %} class="mr-2 text-indigo-600">
+                    <span class="text-gray-700">🤖 Semantic Search (AI - FREE!)</span>
                 </label>
+            </div>
+            <div class="mt-2 text-center text-xs text-gray-600">
+                <p>🔍 572 NASA space biology articles • AI-powered semantic search using local models</p>
+                <p class="mt-1 text-green-600 font-semibold">⭐ 176 articles enriched with full PMC content (Introduction, Methods, Results, Conclusions)</p>
             </div>
         </form>
     </div>
@@ -47,9 +114,6 @@
                     No results found for "{{ query }}"
                 {% endif %}
             </h2>
-            {% if search_type == 'semantic' %}
-            <p class="text-sm text-gray-600 mt-1">🤖 Using AI-powered semantic search</p>
-            {% endif %}
         </div>
 
         {% if results %}
@@ -58,56 +122,79 @@
                 {% if search_type == 'semantic' %}
                     {# Semantic search returns (article, score) tuples #}
                     {% with article=result.0 score=result.1 %}
-                    <a href="{% url 'core:article_detail' article.id %}" class="block group">
-                        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition">
-                            <div class="flex items-start justify-between">
-                                <div class="flex-1">
-                                    <h3 class="text-xl font-semibold mb-2 group-hover:text-indigo-600 transition">
+                    <div @click="openArticle({{ article.id }})" class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition border-l-4 border-indigo-500 cursor-pointer group">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <h3 class="text-xl font-semibold group-hover:text-indigo-600 transition">
                                         {{ article.title }}
                                     </h3>
-                                    {% if article.abstract %}
-                                    <p class="text-gray-600 line-clamp-3">
-                                        {{ article.abstract|truncatewords:50 }}
-                                    </p>
+                                    <span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full font-semibold">
+                                        {{ score|floatformat:2 }} similarity
+                                    </span>
+                                    {% if article.content %}
+                                    <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-semibold">
+                                        ⭐ ENRICHED
+                                    </span>
                                     {% endif %}
-                                    <div class="flex items-center space-x-4 mt-4 text-sm text-gray-500">
-                                        <span>{{ article.views_count }} views</span>
+                                </div>
+                                {% if article.abstract %}
+                                <p class="text-gray-600 line-clamp-3">
+                                    {{ article.abstract|truncatewords:50 }}
+                                </p>
+                                {% endif %}
+                                <div class="flex items-center justify-between mt-4">
+                                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                        <span>📖 {{ article.views_count }} views</span>
                                         {% if article.publication_date %}
-                                        <span>{{ article.publication_date|date:"Y" }}</span>
+                                        <span>📅 {{ article.publication_date|date:"Y" }}</span>
                                         {% endif %}
-                                        <span class="text-indigo-600 font-medium">
-                                            {{ score|floatformat:2 }} similarity
-                                        </span>
                                     </div>
+                                    <button class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold transition">
+                                        View Article
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                    </a>
+                    </div>
                     {% endwith %}
                 {% else %}
                     {# Simple search returns Article objects #}
-                    <a href="{% url 'core:article_detail' result.id %}" class="block group">
-                        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition">
-                            <div class="flex items-start justify-between">
-                                <div class="flex-1">
-                                    <h3 class="text-xl font-semibold mb-2 group-hover:text-indigo-600 transition">
+                    <div @click="openArticle({{ result.id }})" class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition cursor-pointer group">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <h3 class="text-xl font-semibold group-hover:text-indigo-600 transition">
                                         {{ result.title }}
                                     </h3>
-                                    {% if result.abstract %}
-                                    <p class="text-gray-600 line-clamp-3">
-                                        {{ result.abstract|truncatewords:50 }}
-                                    </p>
+                                    {% if result.content %}
+                                    <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-semibold">
+                                        ⭐ ENRICHED
+                                    </span>
                                     {% endif %}
-                                    <div class="flex items-center space-x-4 mt-4 text-sm text-gray-500">
-                                        <span>{{ result.views_count }} views</span>
+                                </div>
+                                {% if result.abstract %}
+                                <p class="text-gray-600 line-clamp-3">
+                                    {{ result.abstract|truncatewords:50 }}
+                                </p>
+                                {% endif %}
+                                <div class="flex items-center justify-between mt-4">
+                                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                        <span>📖 {{ result.views_count }} views</span>
                                         {% if result.publication_date %}
-                                        <span>{{ result.publication_date|date:"Y" }}</span>
+                                        <span>📅 {{ result.publication_date|date:"Y" }}</span>
+                                        {% endif %}
+                                        {% if result.keywords %}
+                                        <span>🏷️ {{ result.keywords|length }} keywords</span>
                                         {% endif %}
                                     </div>
+                                    <button class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold transition">
+                                        View Article
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                    </a>
+                    </div>
                 {% endif %}
             {% endfor %}
         </div>
@@ -123,5 +210,8 @@
         </p>
     </div>
     {% endif %}
+
+    <!-- Article Viewer Modal -->
+    {% include 'core/components/article_viewer.html' %}
 </div>
 {% endblock %}

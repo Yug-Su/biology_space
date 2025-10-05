@@ -1,0 +1,251 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Literature Review - SpaceBio AI{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg shadow-lg p-8 text-white mb-8">
+            <h1 class="text-3xl font-bold mb-2">📚 Literature Review Generator</h1>
+            <p class="text-purple-100">Synthesize comprehensive reviews from NASA space biology research</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column: Generation Form -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-lg p-6" x-data="{
+                    topic: '',
+                    maxArticles: 20,
+                    loading: false,
+                    review: null,
+                    error: null,
+
+                    async generateReview() {
+                        if (!this.topic.trim() || this.loading) return;
+
+                        this.loading = true;
+                        this.error = null;
+                        this.review = null;
+
+                        try {
+                            const response = await fetch('{% url 'core:generate_literature_review' %}', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({
+                                    topic: this.topic,
+                                    max_articles: this.maxArticles
+                                })
+                            });
+
+                            const data = await response.json();
+
+                            if (data.success) {
+                                this.review = data.review;
+                                // Scroll to review
+                                this.$nextTick(() => {
+                                    document.getElementById('review-result').scrollIntoView({behavior: 'smooth'});
+                                });
+                            } else {
+                                this.error = data.error;
+                            }
+                        } catch (error) {
+                            this.error = 'Network error: ' + error.message;
+                        } finally {
+                            this.loading = false;
+                        }
+                    },
+
+                    copyToClipboard() {
+                        navigator.clipboard.writeText(this.review.full_review);
+                        alert('Review copied to clipboard!');
+                    },
+
+                    downloadReview() {
+                        const element = document.createElement('a');
+                        const file = new Blob([this.review.full_review], {type: 'text/markdown'});
+                        element.href = URL.createObjectURL(file);
+                        element.download = `literature_review_${this.topic.replace(/\s+/g, '_')}.md`;
+                        document.body.appendChild(element);
+                        element.click();
+                        document.body.removeChild(element);
+                    }
+                }">
+                    <h2 class="text-xl font-bold mb-4">Generate New Review</h2>
+
+                    <!-- Topic Input -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold mb-2">Research Topic</label>
+                        <input
+                            x-model="topic"
+                            type="text"
+                            placeholder="e.g., Microgravity effects on bone density"
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-500"
+                            @keydown.enter="generateReview"
+                        >
+                    </div>
+
+                    <!-- Max Articles Slider -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-semibold mb-2">
+                            Number of Articles: <span x-text="maxArticles" class="text-purple-600"></span>
+                        </label>
+                        <input
+                            x-model="maxArticles"
+                            type="range"
+                            min="5"
+                            max="50"
+                            step="5"
+                            class="w-full"
+                        >
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>5 (Quick)</span>
+                            <span>50 (Comprehensive)</span>
+                        </div>
+                    </div>
+
+                    <!-- Generate Button -->
+                    <button
+                        @click="generateReview"
+                        :disabled="!topic.trim() || loading"
+                        class="w-full bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <span x-show="!loading">🚀 Generate Literature Review</span>
+                        <span x-show="loading">⏳ Generating Review...</span>
+                    </button>
+
+                    <!-- Error Message -->
+                    <div x-show="error" class="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                        <strong>Error:</strong> <span x-text="error"></span>
+                    </div>
+
+                    <!-- Loading Progress -->
+                    <div x-show="loading" class="mt-4">
+                        <div class="bg-gray-200 rounded-full h-2 overflow-hidden">
+                            <div class="bg-purple-600 h-full animate-pulse" style="width: 100%"></div>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2 text-center">
+                            Analyzing articles and generating comprehensive review...
+                        </p>
+                    </div>
+
+                    <!-- Review Result -->
+                    <div id="review-result" x-show="review" class="mt-8">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold">📖 Generated Review</h3>
+                            <div class="space-x-2">
+                                <button
+                                    @click="copyToClipboard"
+                                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm"
+                                >
+                                    📋 Copy
+                                </button>
+                                <button
+                                    @click="downloadReview"
+                                    class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-sm"
+                                >
+                                    ⬇️ Download
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Review Stats -->
+                        <div class="bg-purple-50 rounded-lg p-4 mb-4 grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-600">Articles Analyzed</p>
+                                <p class="text-2xl font-bold text-purple-600" x-text="review.articles_count"></p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Generation Time</p>
+                                <p class="text-2xl font-bold text-purple-600">
+                                    <span x-text="review.generation_time"></span>s
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Review Content -->
+                        <div class="prose max-w-none bg-white border-2 border-purple-200 rounded-lg p-6">
+                            <div x-html="marked.parse(review.full_review)"></div>
+                        </div>
+
+                        <!-- Citations -->
+                        <div class="mt-6 bg-gray-50 rounded-lg p-6">
+                            <h4 class="font-bold mb-3">📚 References (<span x-text="review.citations.length"></span>)</h4>
+                            <div class="space-y-2 max-h-60 overflow-y-auto">
+                                <template x-for="(citation, index) in review.citations" :key="index">
+                                    <div class="text-sm border-l-2 border-purple-400 pl-3 py-1">
+                                        <span x-text="citation.authors"></span> (<span x-text="citation.year"></span>).
+                                        <em x-text="citation.title"></em>
+                                        <a :href="citation.url" target="_blank" class="text-purple-600 hover:underline ml-1">
+                                            [PMC: <span x-text="citation.pmc_id"></span>]
+                                        </a>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Recent Reviews & Examples -->
+            <div class="space-y-6">
+                <!-- Example Topics -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="font-bold mb-3">💡 Example Topics</h3>
+                    <div class="space-y-2">
+                        <button class="w-full text-left px-3 py-2 bg-purple-50 hover:bg-purple-100 rounded text-sm">
+                            Microgravity effects on bone density
+                        </button>
+                        <button class="w-full text-left px-3 py-2 bg-purple-50 hover:bg-purple-100 rounded text-sm">
+                            Muscle atrophy in long-duration spaceflight
+                        </button>
+                        <button class="w-full text-left px-3 py-2 bg-purple-50 hover:bg-purple-100 rounded text-sm">
+                            Space radiation and DNA damage
+                        </button>
+                        <button class="w-full text-left px-3 py-2 bg-purple-50 hover:bg-purple-100 rounded text-sm">
+                            Cardiovascular changes in microgravity
+                        </button>
+                        <button class="w-full text-left px-3 py-2 bg-purple-50 hover:bg-purple-100 rounded text-sm">
+                            Plant growth in space environment
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Reviews -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="font-bold mb-3">📝 Recent Reviews</h3>
+                    {% if recent_reviews %}
+                        <div class="space-y-3">
+                            {% for review in recent_reviews %}
+                            <div class="border-l-4 border-purple-400 pl-3 py-2">
+                                <p class="font-semibold text-sm">{{ review.topic|truncatewords:10 }}</p>
+                                <p class="text-xs text-gray-500">
+                                    {{ review.articles_count }} articles • {{ review.created_at|timesince }} ago
+                                </p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-gray-500 text-sm">No reviews generated yet</p>
+                    {% endif %}
+                </div>
+
+                <!-- Info -->
+                <div class="bg-indigo-50 rounded-lg p-6">
+                    <h3 class="font-bold mb-2">ℹ️ How it works</h3>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li>• Finds relevant NASA articles</li>
+                        <li>• Extracts key findings</li>
+                        <li>• Synthesizes research</li>
+                        <li>• Generates structured review</li>
+                        <li>• Includes citations</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Marked.js for Markdown rendering -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+{% endblock %}
