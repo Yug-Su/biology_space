@@ -1,33 +1,33 @@
 # 🚀 SpaceBio AI Intelligence Platform
 
-AI-powered research platform for NASA space biology publications. Built for NASA Space Apps Challenge 2025.
+AI-powered research platform for NASA space biology publications. Built for the **NASA Space Apps Challenge 2025**.
 
 ## ✨ Features
 
-- **🔍 Enhanced Search**: Advanced search across titles, abstracts, and authors with year filtering
-- **💬 AI Chat Assistant**: Conversational AI for research questions
-- **✍️ Article Generator**: Generate comprehensive scientific articles
-- **📊 Analytics Dashboard**: Track searches and generations
-- **572 Research Articles** indexed from NASA PMC database
+* **🔍 Enhanced Search** – Advanced search across titles, abstracts, and authors with year filtering
+* **💬 AI Chat Assistant** – Conversational AI for research questions
+* **✍️ Article Generator** – Generate comprehensive scientific articles
+* **📊 Analytics Dashboard** – Track searches and AI generations
+* **572 Research Articles** indexed from NASA PMC database
 
 ## 🏗️ Tech Stack
 
-- **Backend**: Django 5.0 + SQLite
-- **Frontend**: TailwindCSS + Alpine.js + HTMX
-- **AI**: OpenRouter + Groq APIs
-- **Search**: Multi-field text search with intelligent ranking
+* **Backend:** Django 5.0 + SQLite
+* **Frontend:** TailwindCSS + Alpine.js + HTMX
+* **AI:** OpenRouter + Groq APIs
+* **Search:** Multi-field text search with intelligent ranking
 
 ## 🚀 Quick Start
 
-### 1. Configuration des clés API
+### 1. API Key Configuration
 
-Créer un fichier `.env` à la racine :
+Create a `.env` file at the project root:
 
 ```bash
 cp .env.example .env
 ```
 
-Modifier `.env` avec vos clés API :
+Edit `.env` with your API keys:
 
 ```env
 # OpenRouter API (https://openrouter.ai/)
@@ -37,161 +37,164 @@ OPENROUTER_API_KEY=sk-or-v1-xxxxx
 GROQ_API_KEY=gsk_xxxxx
 ```
 
-**Où obtenir les clés ?**
+**Where to get the keys:**
 
-- **OpenRouter**: https://openrouter.ai/keys (gratuit avec crédits de départ)
-- **Groq**: https://console.groq.com/ (gratuit avec crédits de départ)
+* **OpenRouter:** [https://openrouter.ai/keys](https://openrouter.ai/keys) (free with starter credits)
+* **Groq:** [https://console.groq.com/](https://console.groq.com/) (free with starter credits)
 
 ### 2. Installation
 
 ```bash
-# Activer l'environnement virtuel
+# Activate virtual environment
 source venv/Scripts/activate   # Windows Git Bash
-# ou
+# or
 .\venv\Scripts\activate         # Windows PowerShell
 
-# Installer les dépendances
+# Install dependencies
 pip install -r requirements.txt
 
-# Appliquer les migrations (déjà fait)
+# Apply migrations (already done)
 # python manage.py migrate
 
-# Charger les articles (déjà fait - 572 articles)
+# Load articles (already done - 572 articles)
 # python manage.py load_articles
 ```
 
-### 3. Lancer le serveur
+### 3. Run the Server
 
 ```bash
 python manage.py runserver
 ```
 
-Ouvrir http://localhost:8000
+Open your browser at [http://localhost:8000](http://localhost:8000)
 
-## 📁 Structure du Projet
+## 📁 Project Structure
 
 ```
 007/
-├── core/                       # App principale Django
-│   ├── models.py              # Models (Article, Embedding, Chat)
-│   ├── views.py               # Vues (search, chat, generate)
+├── core/                       # Main Django app
+│   ├── models.py               # Models (Article, Embedding, Chat)
+│   ├── views.py                # Views (search, chat, generate)
 │   ├── services/
-│   │   ├── ai_providers.py    # OpenRouter + Groq
-│   │   └── embeddings.py      # Service embeddings
+│   │   ├── ai_providers.py     # OpenRouter + Groq logic
+│   │   └── embeddings.py       # Embedding service
 │   ├── management/commands/
-│   │   ├── load_articles.py   # Charger CSV
+│   │   ├── load_articles.py    # Load CSV data
 │   │   └── generate_embeddings.py
-│   └── templates/core/        # Templates HTML
+│   └── templates/core/         # HTML templates
 ├── Data/
-│   └── SB_publication_PMC.csv # 608 articles NASA
-├── db.sqlite3                 # Base de données
+│   └── SB_publication_PMC.csv  # 608 NASA articles
+├── db.sqlite3                  # Database
 └── manage.py
 ```
 
-## 🎯 Fonctionnalités Principales
+## 🎯 Core Features
 
 ### 1. Enhanced Search
 
-- **Multi-field Search**: Recherche dans les titres, abstracts et auteurs
-- **Smart Filtering**: Filtrage par année de publication
-- **Intelligent Ranking**: Résultats triés par popularité et pertinence
+* **Multi-field Search** – Search across titles, abstracts, and authors
+* **Smart Filtering** – Filter by publication year
+* **Intelligent Ranking** – Sort results by popularity and relevance
 
-### 2. Chat AI
+### 2. AI Chat Assistant
 
-- Conversation avec assistant IA spécialisé en biologie spatiale
-- Maintient le contexte de la conversation
-- Powered by OpenRouter (GPT-4) avec fallback Groq
+* Chat with an AI trained on space biology topics
+* Maintains conversation context
+* Powered by **OpenRouter (GPT-4)** with **Groq fallback**
 
-### 3. Générateur d'Articles
+### 3. Article Generator
 
-Génère des articles scientifiques complets :
-- **Types**: Review, Research, Protocol
-- **Longueur**: Short (500w), Medium (1000w), Long (2000w)
-- **Style**: Academic, Executive, Technical
+Automatically generate scientific articles:
 
-### 4. Admin Django
+* **Types:** Review, Research, Protocol
+* **Length:** Short (500w), Medium (1000w), Long (2000w)
+* **Style:** Academic, Executive, Technical
 
-Accéder à http://localhost:8000/admin
+### 4. Django Admin
 
-Créer un superuser :
+Access: [http://localhost:8000/admin](http://localhost:8000/admin)
+
+Create a superuser:
+
 ```bash
 python manage.py createsuperuser
 ```
 
-## 💰 Estimation des Coûts API
+## 💰 API Cost Estimate
 
-**100% GRATUIT** :
-- ✅ Recherche avancée : **GRATUIT** (aucune API payante)
-- ✅ Navigation articles : **GRATUIT**
-- ✅ Admin Django : **GRATUIT**
+**100% FREE:**
 
-**Avec clés API** :
-- Chat AI : $0.01-0.05 par conversation (OpenRouter/Groq)
-- Génération article : $0.05-0.20 par article (OpenRouter/Groq)
+* ✅ Advanced search: **FREE** (no paid APIs)
+* ✅ Article browsing: **FREE**
+* ✅ Django Admin: **FREE**
 
-**Budget recommandé pour le hackathon** : $5-10 pour tester les features AI
+**With API keys:**
 
-## 🔧 Commandes Utiles
+* Chat AI: **$0.01–$0.05** per conversation (OpenRouter/Groq)
+* Article generation: **$0.05–$0.20** per article
+
+**Recommended budget for hackathon testing:** **$5–10**
+
+## 🔧 Useful Commands
 
 ```bash
-# Recharger les articles
+# Reload articles
 python manage.py load_articles
 
-# Shell Django
+# Open Django shell
 python manage.py shell
 
-# Créer superuser
+# Create superuser
 python manage.py createsuperuser
 ```
 
-## 📊 Base de Données
+## 📊 Database
 
-**Articles actuels** : 572 (36 duplicatas ignorés)
+**Articles:** 572 (36 duplicates ignored)
 
-Structure :
-- `Article` : 572 articles scientifiques NASA
-- `ChatSession` : Historique conversations AI
-- `SearchQuery` : Tracking recherches
-- `GeneratedArticle` : Articles générés par IA
+Structure:
+
+* `Article` – NASA scientific publications
+* `ChatSession` – AI chat history
+* `SearchQuery` – Search tracking
+* `GeneratedArticle` – AI-generated scientific papers
 
 ## 🐛 Troubleshooting
 
-**Erreur "No module named 'httpx'"** :
+**Error "No module named 'httpx'"**
+
 ```bash
 pip install httpx
 ```
 
-**Erreur API "Invalid key"** :
-- Vérifier que `.env` est à la racine
-- Vérifier les clés API OpenRouter/Groq dans `.env`
+**API Error "Invalid key"**
 
-**Chat AI ne répond pas** :
-- Vérifier que `OPENROUTER_API_KEY` ou `GROQ_API_KEY` est configuré
-- Voir les logs console pour détails erreur
+* Ensure `.env` file is in the root directory
+* Double-check OpenRouter/Groq API keys
 
-**Recherche ne retourne pas de résultats** :
-- Vérifier l'orthographe
-- Essayer des termes plus généraux (ex: "microgravity" au lieu de "microgravity effects")
+**Chat AI not responding**
 
-## 🚀 Déploiement
+* Verify `OPENROUTER_API_KEY` or `GROQ_API_KEY` is set
+* Check console logs for detailed error messages
 
-Pour le hackathon, utiliser :
-- **Vercel** : Frontend + Django (via serverless)
-- **Railway** : Backend Django
-- **PythonAnywhere** : Solution complète gratuite
+**Search returns no results**
+
+* Check spelling
+* Try broader terms (e.g., use "microgravity" instead of "microgravity effects")
+
+## 🚀 Deployment
+
+For the hackathon, use one of the following:
+
+* **Vercel** – Frontend + Django (serverless)
+* **Railway** – Django backend hosting
+* **PythonAnywhere** – Full free hosting solution
 
 ## 📝 License
 
-MIT License - NASA Space Apps Challenge 2025
+**MIT License** – NASA Space Apps Challenge 2025
 
-## 👥 Équipe
+## 👥 Team
 
-Hackathon NASA Space Apps Challenge 2025 - Team SpaceBio
+**Hackathon NASA Space Apps Challenge 2025 – Team NetSafePro**
 
----
-
-**🎯 Next Steps**:
-1. Configurer vos clés API OpenRouter/Groq dans `.env` (pour Chat & Génération)
-2. Tester la recherche avancée (100% gratuite !)
-3. Essayer le Chat AI et le générateur d'articles
-4. Préparer votre présentation pour le hackathon !
