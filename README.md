@@ -4,7 +4,7 @@ AI-powered research platform for NASA space biology publications. Built for NASA
 
 ## ✨ Features
 
-- **🔍 Semantic Search**: AI-powered search using OpenAI embeddings
+- **🔍 Enhanced Search**: Advanced search across titles, abstracts, and authors with year filtering
 - **💬 AI Chat Assistant**: Conversational AI for research questions
 - **✍️ Article Generator**: Generate comprehensive scientific articles
 - **📊 Analytics Dashboard**: Track searches and generations
@@ -14,8 +14,8 @@ AI-powered research platform for NASA space biology publications. Built for NASA
 
 - **Backend**: Django 5.0 + SQLite
 - **Frontend**: TailwindCSS + Alpine.js + HTMX
-- **AI**: OpenRouter + Grok APIs
-- **Embeddings**: OpenAI text-embedding-3-small
+- **AI**: OpenRouter + Groq APIs
+- **Search**: Multi-field text search with intelligent ranking
 
 ## 🚀 Quick Start
 
@@ -33,14 +33,14 @@ Modifier `.env` avec vos clés API :
 # OpenRouter API (https://openrouter.ai/)
 OPENROUTER_API_KEY=sk-or-v1-xxxxx
 
-# Grok API (https://console.x.ai/)
-GROK_API_KEY=xai-xxxxx
+# Groq API (https://console.groq.com/)
+GROQ_API_KEY=gsk_xxxxx
 ```
 
 **Où obtenir les clés ?**
 
 - **OpenRouter**: https://openrouter.ai/keys (gratuit avec crédits de départ)
-- **Grok**: https://console.x.ai/ (nécessite compte X.ai)
+- **Groq**: https://console.groq.com/ (gratuit avec crédits de départ)
 
 ### 2. Installation
 
@@ -60,18 +60,7 @@ pip install -r requirements.txt
 # python manage.py load_articles
 ```
 
-### 3. Générer les embeddings (OPTIONNEL)
-
-⚠️ **Coût**: ~$0.50 pour 572 articles avec OpenAI embeddings
-
-```bash
-# Générer les embeddings pour la recherche sémantique
-python manage.py generate_embeddings
-```
-
-**Note**: La recherche sémantique ne fonctionnera qu'après avoir généré les embeddings. Sinon, le système utilise la recherche simple par texte.
-
-### 4. Lancer le serveur
+### 3. Lancer le serveur
 
 ```bash
 python manage.py runserver
@@ -87,7 +76,7 @@ Ouvrir http://localhost:8000
 │   ├── models.py              # Models (Article, Embedding, Chat)
 │   ├── views.py               # Vues (search, chat, generate)
 │   ├── services/
-│   │   ├── ai_providers.py    # OpenRouter + Grok
+│   │   ├── ai_providers.py    # OpenRouter + Groq
 │   │   └── embeddings.py      # Service embeddings
 │   ├── management/commands/
 │   │   ├── load_articles.py   # Charger CSV
@@ -101,16 +90,17 @@ Ouvrir http://localhost:8000
 
 ## 🎯 Fonctionnalités Principales
 
-### 1. Recherche
+### 1. Enhanced Search
 
-- **Simple Search**: Recherche textuelle classique (GRATUIT)
-- **Semantic Search**: Recherche sémantique IA (nécessite embeddings)
+- **Multi-field Search**: Recherche dans les titres, abstracts et auteurs
+- **Smart Filtering**: Filtrage par année de publication
+- **Intelligent Ranking**: Résultats triés par popularité et pertinence
 
 ### 2. Chat AI
 
 - Conversation avec assistant IA spécialisé en biologie spatiale
 - Maintient le contexte de la conversation
-- Powered by OpenRouter (GPT-4) avec fallback Grok
+- Powered by OpenRouter (GPT-4) avec fallback Groq
 
 ### 3. Générateur d'Articles
 
@@ -130,24 +120,22 @@ python manage.py createsuperuser
 
 ## 💰 Estimation des Coûts API
 
-**Embeddings (une seule fois)** :
-- 572 articles × $0.00001/1K tokens ≈ **$0.50**
+**100% GRATUIT** :
+- ✅ Recherche avancée : **GRATUIT** (aucune API payante)
+- ✅ Navigation articles : **GRATUIT**
+- ✅ Admin Django : **GRATUIT**
 
-**Usage normal** :
-- Recherche sémantique : $0.00001 par recherche
-- Chat : $0.01-0.05 par conversation
-- Génération article : $0.05-0.20 par article
+**Avec clés API** :
+- Chat AI : $0.01-0.05 par conversation (OpenRouter/Groq)
+- Génération article : $0.05-0.20 par article (OpenRouter/Groq)
 
-**Astuce** : Utiliser la recherche simple (gratuite) quand possible !
+**Budget recommandé pour le hackathon** : $5-10 pour tester les features AI
 
 ## 🔧 Commandes Utiles
 
 ```bash
 # Recharger les articles
 python manage.py load_articles
-
-# Générer embeddings
-python manage.py generate_embeddings
 
 # Shell Django
 python manage.py shell
@@ -161,9 +149,8 @@ python manage.py createsuperuser
 **Articles actuels** : 572 (36 duplicatas ignorés)
 
 Structure :
-- `Article` : Articles scientifiques
-- `ArticleEmbedding` : Vecteurs sémantiques (1536 dim)
-- `ChatSession` : Historique conversations
+- `Article` : 572 articles scientifiques NASA
+- `ChatSession` : Historique conversations AI
 - `SearchQuery` : Tracking recherches
 - `GeneratedArticle` : Articles générés par IA
 
@@ -176,15 +163,15 @@ pip install httpx
 
 **Erreur API "Invalid key"** :
 - Vérifier que `.env` est à la racine
-- Vérifier les clés API dans `.env`
-
-**Recherche sémantique ne fonctionne pas** :
-- Générer les embeddings : `python manage.py generate_embeddings`
-- Vérifier que `OPENROUTER_API_KEY` est configuré
+- Vérifier les clés API OpenRouter/Groq dans `.env`
 
 **Chat AI ne répond pas** :
-- Vérifier les clés API
+- Vérifier que `OPENROUTER_API_KEY` ou `GROQ_API_KEY` est configuré
 - Voir les logs console pour détails erreur
+
+**Recherche ne retourne pas de résultats** :
+- Vérifier l'orthographe
+- Essayer des termes plus généraux (ex: "microgravity" au lieu de "microgravity effects")
 
 ## 🚀 Déploiement
 
@@ -204,6 +191,7 @@ Hackathon NASA Space Apps Challenge 2025 - Team SpaceBio
 ---
 
 **🎯 Next Steps**:
-1. Configurer vos clés API dans `.env`
-2. Générer les embeddings (optionnel)
-3. Tester l'interface !
+1. Configurer vos clés API OpenRouter/Groq dans `.env` (pour Chat & Génération)
+2. Tester la recherche avancée (100% gratuite !)
+3. Essayer le Chat AI et le générateur d'articles
+4. Préparer votre présentation pour le hackathon !

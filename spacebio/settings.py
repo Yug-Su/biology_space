@@ -138,12 +138,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 OPENROUTER_API_KEY = env('OPENROUTER_API_KEY', default='')
 OPENROUTER_BASE_URL = env('OPENROUTER_BASE_URL', default='https://openrouter.ai/api/v1')
 
-GROK_API_KEY = env('GROK_API_KEY', default='')
-GROK_BASE_URL = env('GROK_BASE_URL', default='https://api.x.ai/v1')
+GROQ_API_KEY = env('GROQ_API_KEY', default='')
+GROQ_BASE_URL = env('GROQ_BASE_URL', default='https://api.groq.com/openai/v1')
+
+# OpenAI API (for embeddings)
+OPENAI_API_KEY = env('OPENAI_API_KEY', default='')
+OPENAI_BASE_URL = env('OPENAI_BASE_URL', default='https://api.openai.com/v1')
 
 # AI Model Configuration
 PRIMARY_AI_MODEL = env('PRIMARY_AI_MODEL', default='gpt-4-turbo')
-FALLBACK_AI_MODEL = env('FALLBACK_AI_MODEL', default='grok-beta')
+FALLBACK_AI_MODEL = env('FALLBACK_AI_MODEL', default='llama-3.1-70b-versatile')
 EMBEDDING_MODEL = env('EMBEDDING_MODEL', default='text-embedding-3-small')
 
 # Cost Optimization

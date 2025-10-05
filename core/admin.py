@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Article, ArticleEmbedding, ChatSession, SearchQuery, GeneratedArticle
+from .models import Article, ArticleEmbedding, ChatSession, SearchQuery, GeneratedArticle, LiteratureReview
 
 
 @admin.register(Article)
@@ -56,3 +56,16 @@ class GeneratedArticleAdmin(admin.ModelAdmin):
     def title_short(self, obj):
         return obj.title[:80] + '...' if len(obj.title) > 80 else obj.title
     title_short.short_description = 'Title'
+
+
+@admin.register(LiteratureReview)
+class LiteratureReviewAdmin(admin.ModelAdmin):
+    list_display = ['topic_short', 'articles_count', 'generation_time_seconds', 'created_at']
+    list_filter = ['created_at']
+    search_fields = ['topic', 'introduction', 'conclusion']
+    readonly_fields = ['created_at', 'generation_time_seconds']
+    filter_horizontal = ['source_articles']
+
+    def topic_short(self, obj):
+        return obj.topic[:80] + '...' if len(obj.topic) > 80 else obj.topic
+    topic_short.short_description = 'Topic'

@@ -4,12 +4,9 @@ django-environ==0.11.2
 django-extensions==3.2.3
 
 # AI & ML
-openai==1.12.0
-anthropic==0.18.1
-langchain==0.1.9
-langchain-openai==0.0.6
-sentence-transformers==2.3.1
-numpy==1.26.4
+httpx==0.26.0
+sentence-transformers==5.1.1
+google-generativeai
 
 # Data Processing
 pandas==2.2.0

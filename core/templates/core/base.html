@@ -29,8 +29,9 @@
                     </a>
                     <div class="hidden md:flex space-x-4">
                         <a href="{% url 'core:search' %}" class="hover:bg-white/20 px-3 py-2 rounded-md">Search</a>
-                        <a href="{% url 'core:chat' %}" class="hover:bg-white/20 px-3 py-2 rounded-md">AI Chat</a>
-                        <a href="{% url 'core:generate' %}" class="hover:bg-white/20 px-3 py-2 rounded-md">Generate</a>
+                        <a href="{% url 'core:chat' %}" class="hover:bg-white/20 px-3 py-2 rounded-md">AI Assistant</a>
+                        <a href="{% url 'core:generate' %}" class="hover:bg-white/20 px-3 py-2 rounded-md">Research Synthesis</a>
+                        <a href="{% url 'core:literature_review' %}" class="hover:bg-white/20 px-3 py-2 rounded-md">Lit Review</a>
                         <a href="{% url 'core:analytics' %}" class="hover:bg-white/20 px-3 py-2 rounded-md">Analytics</a>
                     </div>
                 </div>
@@ -54,7 +55,7 @@
                     🚀 SpaceBio Intelligence Platform - NASA Space Apps Challenge 2025
                 </p>
                 <p class="text-gray-500 text-sm mt-2">
-                    Powered by OpenRouter & Grok AI | {{ stats.total_articles|default:0 }} Articles Indexed
+                    Powered by OpenRouter & Groq AI | {{ stats.total_articles|default:0 }} Articles Indexed
                 </p>
             </div>
         </div>

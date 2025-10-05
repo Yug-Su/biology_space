@@ -16,7 +16,7 @@
    - Générer une clé API
    - Copier `sk-or-v1-xxxxx...`
 
-2. **Grok** (optionnel - fallback)
+2. **Groq** (optionnel - fallback)
    - Aller sur https://console.x.ai/
    - Créer un compte X.ai
    - Générer une clé API
@@ -27,7 +27,7 @@
 ```bash
 # Ouvrir .env et modifier :
 OPENROUTER_API_KEY=sk-or-v1-VOTRE_CLE_ICI
-GROK_API_KEY=xai-VOTRE_CLE_ICI  # optionnel
+GROQ_API_KEY=gsk_VOTRE_CLE_ICI  # optionnel
 ```
 
 ## 🚀 Étape 2 : Accéder à l'Application

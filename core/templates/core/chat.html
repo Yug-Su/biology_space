@@ -6,7 +6,7 @@
 <div class="container mx-auto px-4 py-8">
     <div class="max-w-4xl mx-auto">
         <div class="bg-white rounded-lg shadow-lg" x-data="{
-            messages: {{ session.messages|safe|default:'[]' }},
+            messages: {{ messages_json|safe }},
             newMessage: '',
             loading: false,
             sessionId: '{{ session.session_id }}',

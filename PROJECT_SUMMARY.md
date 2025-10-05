@@ -6,7 +6,7 @@
 - ✅ Django 5.0 full-stack
 - ✅ SQLite database (572 articles)
 - ✅ TailwindCSS + Alpine.js + HTMX frontend
-- ✅ OpenRouter + Grok API integration
+- ✅ OpenRouter + Groq API integration
 - ✅ Service d'embeddings OpenAI
 
 ### 📦 Modèles de Données
@@ -27,7 +27,7 @@
 #### 2. Chat AI (✅ Complète)
 - Interface conversationnelle
 - Contexte maintenu sur 10 messages
-- Fallback OpenRouter → Grok
+- Fallback OpenRouter → Groq
 - Streaming responses
 - Historique persistant
 
@@ -58,7 +58,7 @@ class AIProvider:
     - chat()              # Chat conversationnel
     - summarize()         # Résumés articles
     - generate_article()  # Génération articles complets
-    - Automatic fallback OpenRouter → Grok
+    - Automatic fallback OpenRouter → Groq
     - Retry logic & error handling
 ```
 
@@ -140,7 +140,7 @@ python manage.py generate_embeddings
 
 ### AI/ML
 - OpenRouter API
-- Grok API (X.ai)
+- Groq API (X.ai)
 - OpenAI Embeddings (text-embedding-3-small)
 
 ## ⚠️ Points Importants
@@ -207,7 +207,7 @@ python manage.py generate_embeddings
 ## 🏆 Points Forts du Projet
 
 1. **Architecture solide** : Django + services séparés
-2. **Fallback intelligent** : OpenRouter → Grok
+2. **Fallback intelligent** : OpenRouter → Groq
 3. **UX moderne** : TailwindCSS + Alpine.js
 4. **Zero-config frontend** : Pas de build npm
 5. **Coûts optimisés** : Recherche simple gratuite

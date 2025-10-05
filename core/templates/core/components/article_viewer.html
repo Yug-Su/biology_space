@@ -1,0 +1,222 @@
+<!-- Article Viewer Modal Component -->
+<div
+    x-show="viewerOpen"
+    x-cloak
+    @keydown.escape.window="viewerOpen = false"
+    class="fixed inset-0 z-50 overflow-hidden"
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+>
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black bg-opacity-75" @click="viewerOpen = false"></div>
+
+    <!-- Modal Container -->
+    <div class="relative h-full flex items-center justify-center p-4">
+        <div
+            class="relative bg-white rounded-lg shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col"
+            @click.stop
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+        >
+            <!-- Header -->
+            <div class="flex items-center justify-between p-6 border-b bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-t-lg">
+                <div class="flex-1 pr-4">
+                    <h2 class="text-2xl font-bold" x-text="currentArticle?.title || 'Loading...'"></h2>
+                    <div class="flex items-center gap-4 mt-2 text-sm text-purple-100">
+                        <span x-show="currentArticle?.publication_date">
+                            📅 <span x-text="currentArticle?.publication_date"></span>
+                        </span>
+                        <span x-show="currentArticle?.pmc_id">
+                            🔖 <span x-text="currentArticle?.pmc_id"></span>
+                        </span>
+                        <span x-show="currentArticle?.views_count !== undefined">
+                            👁️ <span x-text="currentArticle?.views_count"></span> views
+                        </span>
+                        <span x-show="currentArticle?.content" class="px-2 py-1 bg-green-500 rounded text-white text-xs font-semibold">
+                            ⭐ ENRICHED
+                        </span>
+                    </div>
+                </div>
+                <button
+                    @click="viewerOpen = false"
+                    class="text-white hover:bg-white/20 rounded-full p-2 transition"
+                >
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="flex items-center justify-between px-6 py-3 border-b bg-gray-50">
+                <div class="flex items-center gap-2">
+                    <button
+                        @click="activeViewerTab = 'content'"
+                        :class="activeViewerTab === 'content' ? 'bg-white shadow-sm' : 'bg-transparent'"
+                        class="px-4 py-2 rounded-lg text-sm font-semibold transition"
+                    >
+                        📄 Content
+                    </button>
+                    <button
+                        @click="activeViewerTab = 'metadata'"
+                        :class="activeViewerTab === 'metadata' ? 'bg-white shadow-sm' : 'bg-transparent'"
+                        class="px-4 py-2 rounded-lg text-sm font-semibold transition"
+                    >
+                        📊 Metadata
+                    </button>
+                    <button
+                        @click="activeViewerTab = 'ai-tools'"
+                        :class="activeViewerTab === 'ai-tools' ? 'bg-white shadow-sm' : 'bg-transparent'"
+                        class="px-4 py-2 rounded-lg text-sm font-semibold transition"
+                    >
+                        🤖 AI Tools
+                    </button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button
+                        @click="window.open(currentArticle?.url, '_blank')"
+                        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold transition"
+                    >
+                        Open in PMC ↗
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="flex-1 overflow-y-auto p-6">
+                <!-- Content Tab -->
+                <div x-show="activeViewerTab === 'content'" class="prose max-w-none">
+                    <!-- Abstract -->
+                    <div x-show="currentArticle?.abstract" class="mb-6">
+                        <h3 class="text-xl font-bold mb-3 text-gray-900">Abstract</h3>
+                        <p class="text-gray-700 leading-relaxed" x-text="currentArticle?.abstract"></p>
+                    </div>
+
+                    <!-- Full Content (if enriched) -->
+                    <div x-show="currentArticle?.content" class="mb-6">
+                        <h3 class="text-xl font-bold mb-3 text-gray-900">Full Article Content</h3>
+                        <div class="text-gray-700 leading-relaxed whitespace-pre-wrap bg-gray-50 p-6 rounded-lg" x-text="currentArticle?.content"></div>
+                    </div>
+
+                    <!-- No content message -->
+                    <div x-show="!currentArticle?.abstract && !currentArticle?.content" class="text-center py-12">
+                        <div class="text-6xl mb-4">📄</div>
+                        <p class="text-gray-500">No content available for this article.</p>
+                        <p class="text-sm text-gray-400 mt-2">You can view it on PubMed Central</p>
+                    </div>
+                </div>
+
+                <!-- Metadata Tab -->
+                <div x-show="activeViewerTab === 'metadata'" class="space-y-6">
+                    <!-- Authors -->
+                    <div x-show="currentArticle?.authors?.length > 0">
+                        <h3 class="text-xl font-bold mb-3">Authors</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <template x-for="author in currentArticle?.authors" :key="author">
+                                <span class="px-3 py-1 bg-gray-100 rounded-full text-sm" x-text="author"></span>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Keywords -->
+                    <div x-show="currentArticle?.keywords?.length > 0">
+                        <h3 class="text-xl font-bold mb-3">Keywords</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <template x-for="keyword in currentArticle?.keywords" :key="keyword">
+                                <button
+                                    @click="viewerOpen = false; setTimeout(() => { document.querySelector('input[name=q]').value = keyword; document.querySelector('input[name=q]').form.submit(); }, 100)"
+                                    class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm hover:bg-indigo-200 transition"
+                                    x-text="keyword"
+                                ></button>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Publication Info -->
+                    <div>
+                        <h3 class="text-xl font-bold mb-3">Publication Information</h3>
+                        <div class="bg-gray-50 rounded-lg p-4 space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">PMC ID:</span>
+                                <span class="font-mono" x-text="currentArticle?.pmc_id || 'N/A'"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Publication Date:</span>
+                                <span x-text="currentArticle?.publication_date || 'N/A'"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Views:</span>
+                                <span x-text="currentArticle?.views_count || 0"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">URL:</span>
+                                <a :href="currentArticle?.url" target="_blank" class="text-indigo-600 hover:underline text-sm">
+                                    Open in new tab ↗
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Tools Tab -->
+                <div x-show="activeViewerTab === 'ai-tools'" class="space-y-6">
+                    <!-- AI Summary -->
+                    <div>
+                        <h3 class="text-xl font-bold mb-3">🤖 AI Summary</h3>
+                        <p class="text-sm text-gray-600 mb-4">
+                            Generate a concise AI-powered summary of this article
+                        </p>
+                        <button
+                            @click="generateSummary()"
+                            :disabled="summaryLoading"
+                            class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition disabled:opacity-50"
+                        >
+                            <span x-show="!summaryLoading">🤖 Generate AI Summary</span>
+                            <span x-show="summaryLoading">⏳ Generating...</span>
+                        </button>
+
+                        <div x-show="articleSummary" class="mt-4 bg-purple-50 rounded-lg p-6">
+                            <p class="text-gray-700 leading-relaxed" x-text="articleSummary"></p>
+                        </div>
+                    </div>
+
+                    <!-- Similar Articles -->
+                    <div x-show="similarArticles?.length > 0">
+                        <h3 class="text-xl font-bold mb-3">Similar Articles</h3>
+                        <div class="space-y-2">
+                            <template x-for="similar in similarArticles" :key="similar.id">
+                                <button
+                                    @click="openArticle(similar.id)"
+                                    class="w-full text-left p-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition"
+                                >
+                                    <p class="font-semibold text-gray-900" x-text="similar.title"></p>
+                                    <p class="text-sm text-gray-600 mt-1" x-text="similar.abstract?.substring(0, 150) + '...'"></p>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="border-t p-4 bg-gray-50 rounded-b-lg flex justify-between items-center">
+                <div class="text-sm text-gray-600">
+                    <span x-show="currentArticle?.content">
+                        This article has been enriched with full content from PubMed Central
+                    </span>
+                </div>
+                <button
+                    @click="viewerOpen = false"
+                    class="px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-sm font-semibold transition"
+                >
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

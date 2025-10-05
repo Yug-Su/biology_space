@@ -1,11 +1,12 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Generate Article - SpaceBio AI{% endblock %}
+{% block title %}Research Synthesis - SpaceBio AI{% endblock %}
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
     <div class="max-w-6xl mx-auto">
-        <h1 class="text-3xl font-bold mb-8">✍️ AI Article Generator</h1>
+        <h1 class="text-3xl font-bold mb-8">🔬 Research Synthesis Engine</h1>
+        <p class="text-gray-600 mb-6">Synthesize comprehensive reports by analyzing and cross-referencing multiple research articles from our database</p>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8" x-data="{
             topic: '',
@@ -49,7 +50,7 @@
         }">
             <!-- Configuration Panel -->
             <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-bold mb-6">Article Configuration</h2>
+                <h2 class="text-xl font-bold mb-6">Synthesis Parameters</h2>
 
                 <form @submit.prevent="generate" class="space-y-6">
                     <!-- Topic -->
@@ -118,8 +119,8 @@
                         class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-semibold transition disabled:opacity-50"
                         :disabled="loading || !topic.trim()"
                     >
-                        <span x-show="!loading">Generate Article</span>
-                        <span x-show="loading" x-cloak>Generating... (this may take 30s)</span>
+                        <span x-show="!loading">🔬 Synthesize Research</span>
+                        <span x-show="loading" x-cloak>Analyzing sources... (this may take 30s)</span>
                     </button>
                 </form>
 
@@ -127,34 +128,44 @@
                 <div class="mt-6 bg-blue-50 rounded-lg p-4">
                     <h3 class="font-semibold mb-2">ℹ️ How it works</h3>
                     <p class="text-sm text-gray-700">
-                        Our AI analyzes relevant articles from the database and generates a comprehensive article based on your specifications.
+                        This tool searches our database of 572 NASA research articles, identifies relevant sources,
+                        and synthesizes their findings into a comprehensive report. <strong>All content is based on real research data</strong> -
+                        no hallucinated information.
                     </p>
                 </div>
             </div>
 
             <!-- Preview Panel -->
             <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-bold mb-6">Generated Article</h2>
+                <h2 class="text-xl font-bold mb-6">Synthesized Report</h2>
 
                 <template x-if="!generated && !loading">
                     <div class="text-center text-gray-400 mt-20">
-                        <div class="text-6xl mb-4">📝</div>
-                        <p>Your generated article will appear here</p>
+                        <div class="text-6xl mb-4">📊</div>
+                        <p>Your research synthesis will appear here</p>
+                        <p class="text-sm mt-2">Based on real articles from our database</p>
                     </div>
                 </template>
 
                 <template x-if="loading">
                     <div class="text-center mt-20">
                         <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-                        <p class="mt-4 text-gray-600">Generating your article...</p>
+                        <p class="mt-4 text-gray-600">Searching and analyzing research articles...</p>
+                        <p class="text-sm text-gray-500 mt-2">Cross-referencing findings from multiple sources</p>
                     </div>
                 </template>
 
                 <template x-if="generated">
                     <div>
+                        <div class="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <p class="text-sm text-green-800">
+                                ✅ Synthesis based on <strong x-text="generated.source_articles || 'multiple'"></strong> research articles
+                                | Completed in <strong x-text="(generated.synthesis_time || generated.generation_time)"></strong>s
+                            </p>
+                        </div>
                         <div class="mb-4 flex items-center justify-between">
                             <span class="text-sm text-gray-500">
-                                Generated in <span x-text="generated.generation_time"></span>s
+                                Data-driven synthesis from our research database
                             </span>
                             <button
                                 @click="navigator.clipboard.writeText(generated.title + '\n\n' + generated.content)"

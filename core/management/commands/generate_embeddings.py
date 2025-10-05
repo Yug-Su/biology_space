@@ -19,9 +19,11 @@ class Command(BaseCommand):
     async def _async_handle(self):
         try:
             async for progress in embedding_service.embed_all_articles():
+                # Encode article title to handle special characters
+                title = progress['article'].encode('ascii', 'replace').decode('ascii')
                 self.stdout.write(
                     self.style.SUCCESS(
-                        f"[{progress['progress']}/{progress['total']}] {progress['article']}"
+                        f"[{progress['progress']}/{progress['total']}] {title}"
                     )
                 )
 
