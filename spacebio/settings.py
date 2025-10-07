@@ -89,11 +89,13 @@ DATABASES = {
     }
 }
 
+
+
 #static files
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',  
-]
+STATICFILES_DIRS = [BASE_DIR / 'static']  # tes fichiers dev
+STATIC_ROOT = BASE_DIR / 'staticfiles'    # dossier où collectstatic va copier tout
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

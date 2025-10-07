@@ -3,7 +3,7 @@
 {% block title %}{{ article.title }} - SpaceBio AI{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8" x-data="{ summary: '', loading: false }">
+<div class="container mx-auto px-4 py-8" x-data="{ summary: '', loading: false }" style="color: black;">
     <div class="max-w-4xl mx-auto">
         <!-- Back button -->
         <a href="{% url 'core:search' %}" class="text-indigo-600 hover:underline mb-4 inline-block">

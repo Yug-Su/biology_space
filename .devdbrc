@@ -1,0 +1,6 @@
+[
+  {
+    "type": "sqlite",
+    "path": "d:\\projects\\biology_space\\db.sqlite3"
+  }
+]
